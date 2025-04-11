@@ -1,0 +1,31 @@
+---
+title: "Project 1"
+format: html
+editor: visual
+---
+
+```{r}
+#| label: Import the dataset
+
+here::i_am("Project_1.qmd")
+
+library(tidyverse)
+library(rsample)
+library(janitor)
+library(broom)
+library(yardstick)
+library(probably)
+
+hospital <- read_csv(here::here("Data/HCAHPS-Hospital.csv"))
+
+```
+
+```{r}
+#| label: Filter the dataset for relevent relevent information
+
+hospital |>
+  select(
+    !c("Address", "City/Town","Telephone Number", "HCAHPS Meassure ID", "HCAHPS Question") # Not Finished
+  )
+
+```
