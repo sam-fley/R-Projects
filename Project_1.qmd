@@ -16,16 +16,69 @@ library(broom)
 library(yardstick)
 library(probably)
 
-hospital <- read_csv(here::here("Data/HCAHPS-Hospital.csv"))
+hospital <- read_csv(here::here("Data/HCAHPS-Hospital.csv"), na = c("Not Applicable", "Not Available"))
 
 ```
 
 ```{r}
 #| label: Filter the dataset for relevent relevent information
 
-hospital |>
+hospital <- hospital |>
+  clean_names()
+
+hospital_1 <- hospital |>
   select(
-    !c("Address", "City/Town","Telephone Number", "HCAHPS Meassure ID", "HCAHPS Question") # Not Finished
+    !c("address", "city_town","telephone_number", "hcahps_answer_description") # Not Finished
   )
+
+```
+
+```{r}
+#| label: Seperate the data sets
+
+hospital_star_rating <- hospital_1 |>
+  select(
+    !c("hcahps_answer_percent", "hcahps_answer_percent_footnote", "hcahps_linear_mean_value" )
+  ) |>
+  filter(
+    !is.na(`patient_survey_star_rating`)
+    )
+
+
+hospital_ans_perc <- hospital_1 |>
+  select(
+    !c("patient_survey_star_rating", "patient_survey_star_rating_footnote", "hcahps_linear_mean_value" )
+  ) |>
+  filter(
+    !is.na(`hcahps_answer_percent`)
+    )
+
+
+hospital_linear_mean <- hospital_1 |>
+  select(
+    !c("hcahps_answer_percent", "hcahps_answer_percent_footnote", "patient_survey_star_rating", "patient_survey_star_rating_footnote")
+  ) |>
+  filter(
+    !is.na(`hcahps_linear_mean_value`)
+    )
+```
+
+```{r}
+#| label: Pivot the data
+
+hospital_star_rating_1 <- hospital_star_rating |>
+  pivot_wider(id_cols = `facility_id`,
+              names_from = `hcahps_measure_id`,
+              values_from = `patient_survey_star_rating`)
+
+hospital_ans_perc_1 <- hospital_ans_perc |>
+  pivot_wider(id_cols = `facility_id`,
+              names_from = `hcahps_measure_id`,
+              values_from = `hcahps_answer_percent`)
+
+hospital_linear_mean_1 <- hospital_linear_mean |>
+  pivot_wider(id_cols = `facility_id`,
+              names_from = `hcahps_measure_id`,
+              values_from = `hcahps_linear_mean_value`)
 
 ```
