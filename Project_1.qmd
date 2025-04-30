@@ -36,7 +36,7 @@ hospital_1 <- hospital |>
 ```{r}
 #| label: Seperate the data sets
 
-hospital_star_rating <- hospital_1 |>
+hospital_star_rating <- hospital_1 |> # Star rating is a 1-5 rating of service
   select(
     !c("hcahps_answer_percent", "hcahps_answer_percent_footnote", "hcahps_linear_mean_value" )
   ) |>
@@ -45,7 +45,7 @@ hospital_star_rating <- hospital_1 |>
     )
 
 
-hospital_ans_perc <- hospital_1 |>
+hospital_ans_perc <- hospital_1 |> # Answer percent is percentage of how many times that answer was chosen
   select(
     !c("patient_survey_star_rating", "patient_survey_star_rating_footnote", "hcahps_linear_mean_value" )
   ) |>
@@ -54,7 +54,7 @@ hospital_ans_perc <- hospital_1 |>
     )
 
 
-hospital_linear_mean <- hospital_1 |>
+hospital_linear_mean <- hospital_1 |> # linear mean is a standerdization of star rating to be out of 100
   select(
     !c("hcahps_answer_percent", "hcahps_answer_percent_footnote", "patient_survey_star_rating", "patient_survey_star_rating_footnote")
   ) |>
@@ -66,19 +66,44 @@ hospital_linear_mean <- hospital_1 |>
 ```{r}
 #| label: Pivot the data
 
-hospital_star_rating_1 <- hospital_star_rating |>
+hospital_star_rating_pivot <- hospital_star_rating |>
   pivot_wider(id_cols = `facility_id`,
               names_from = `hcahps_measure_id`,
-              values_from = `patient_survey_star_rating`)
+              values_from = `patient_survey_star_rating`) |>
+  clean_names() |>
+    rename_with(
+    \(x) str_remove(x , "_star_rating")
+  )
 
-hospital_ans_perc_1 <- hospital_ans_perc |>
+hospital_ans_perc_pivot <- hospital_ans_perc |>
   pivot_wider(id_cols = `facility_id`,
               names_from = `hcahps_measure_id`,
-              values_from = `hcahps_answer_percent`)
+              values_from = `hcahps_answer_percent`) |>
+  clean_names() |>
+    rename_with(
+    \(x) str_remove(x , "_p")
+  )
 
-hospital_linear_mean_1 <- hospital_linear_mean |>
+hospital_linear_mean_pivot <- hospital_linear_mean |>
   pivot_wider(id_cols = `facility_id`,
               names_from = `hcahps_measure_id`,
-              values_from = `hcahps_linear_mean_value`)
+              values_from = `hcahps_linear_mean_value`) |>
+  clean_names() |>
+  rename_with(
+    \(x) str_remove(x , "_linear_score")
+  )
 
 ```
+
+```{r}
+#| label: Rating vs Recomend analysis
+
+ggplot(
+  data = hospital_linear_mean_pivot,
+  mapping = aes(x = h_hsp_rating, y = h_recmnd)
+) +
+  geom_point()
+
+```
+
+There is a positive correlation between the overall hospital rating and the recommendation likelihood. This makes sense since a hospital with a higher rating should be more likely to be recommended. We will be using the overall hospital rating as our response variable. We will judge the other variable to see how much they effect the overall hospital rating.

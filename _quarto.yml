@@ -1,0 +1,21 @@
+project:
+  type: website
+  output-dir: docs
+  render:
+    -   Index.qmd
+    -   Project_1.qmd
+    
+website:
+  title: "CSUF Math Projects"
+  navbar:
+    left:
+#     - href: Index.qmd
+#     - text: Home
+      - href: Project_1.qmd
+        text: "Hospital Analysis"
+       
+format:
+  html:
+    theme: yeti
+    css: styles.css
+    toc: true
