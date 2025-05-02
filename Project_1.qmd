@@ -107,3 +107,5 @@ ggplot(
 ```
 
 There is a positive correlation between the overall hospital rating and the recommendation likelihood. This makes sense since a hospital with a higher rating should be more likely to be recommended. We will be using the overall hospital rating as our response variable. We will judge the other variable to see how much they effect the overall hospital rating.
+
+**DELETE THIS, DO PRINCIPLE COMPONENT ANALYSIS**
