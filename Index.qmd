@@ -1,5 +1,5 @@
 ---
-title: "Index"
+title: "index"
 ---
 
 I am Sam Fleyshman.

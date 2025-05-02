@@ -2,7 +2,7 @@ project:
   type: website
   output-dir: docs
   render:
-    -   Index.qmd
+    -   index.qmd
     -   Project_1.qmd
     
 website:
@@ -16,6 +16,6 @@ website:
        
 format:
   html:
-    theme: yeti
+    theme: solor
     css: styles.css
     toc: true
