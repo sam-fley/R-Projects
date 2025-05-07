@@ -4,17 +4,26 @@ format: html
 editor: visual
 ---
 
+**YAP ABOUT THE QUESTION AND WHAT WILL BE DONE. ABSTRACT TYPE STUFF**
+
+CONTEXT: Hospital admins are twitchy about this stuff and care alot about how their hospitals are reated and the fluctuations. Question survey stuffs. Deal with fluctuations
+
 ```{r}
 #| label: Import the dataset
+#| warning: false
+#| message: false
 
 here::i_am("Project_1.qmd")
 
 library(tidyverse)
+library(tidymodels)
 library(rsample)
 library(janitor)
 library(broom)
 library(yardstick)
 library(probably)
+library(gt)
+library(patchwork)
 
 hospital <- read_csv(here::here("Data/HCAHPS-Hospital.csv"), na = c("Not Applicable", "Not Available"))
 
@@ -93,6 +102,16 @@ hospital_linear_mean_pivot <- hospital_linear_mean |>
     \(x) str_remove(x , "_linear_score")
   )
 
+hospital_linear_questions_pivot <- hospital_linear_mean |>
+  pivot_wider(id_cols = `facility_id`,
+              names_from = `hcahps_measure_id`,
+              values_from = `hcahps_question`) |>
+  clean_names() |>
+  rename_with(
+    \(x) str_remove(x , "_linear_score")
+  ) |>
+  filter(facility_id == "010001" )
+
 ```
 
 ```{r}
@@ -107,5 +126,175 @@ ggplot(
 ```
 
 There is a positive correlation between the overall hospital rating and the recommendation likelihood. This makes sense since a hospital with a higher rating should be more likely to be recommended. We will be using the overall hospital rating as our response variable. We will judge the other variable to see how much they effect the overall hospital rating.
+
+To analyze the data and answer our question, we will use principle component analysis.
+
+No training/test set because we are not evaluating how good the predictions are. We know the model/number of components and that everything is correlated before looking at data, so no training/test set because solely for inference.
+
+```{r}
+#| label: Set up model and begin workflow
+
+linear_model <- linear_reg(mode = "regression", engine = "lm")
+
+linear_wflow <- workflow() |>
+  add_model(linear_model)
+```
+
+```{r}
+#| label: Create recipe and commit to workflow
+
+pca_recipe <- recipe(
+  h_recmnd ~ . , data = hospital_linear_mean_pivot
+) |>
+## ~ . indicates to use all variables in the dataset as predictors besides the response
+  update_role(facility_id, new_role = "id") |>
+  step_rm(h_hsp_rating) |>
+  step_normalize(all_numeric_predictors()) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_pca(all_predictors(), num_comp = 8)
+
+linear_wflow <- linear_wflow |>
+  add_recipe(pca_recipe)
+```
+
+```{r}
+#| label: Fit the model and create a table
+
+linear_fit <- fit(linear_wflow, data = hospital_linear_mean_pivot)
+
+tidy(linear_fit)
+```
+
+-   Note below 0.01 can be considered significant
+
+```{r}
+#| label: Table of coefficients
+#| html-table-processing: none 
+
+# Note the html-table-processing: none option in the chunk options
+# The table doesn't display with the default striping in RStudio
+# But Rendering to HTML adds it back in unless you tell it not to
+gt(
+  tidy(linear_fit),
+  rowname_col = "term"
+) |>
+  tab_header(title = "Significance of Components") |>
+  tab_source_note(source_note = "XXXXXXX") |>
+  opt_align_table_header(align = "right") |>
+  tab_style(
+    style = list(
+      cell_fill(color = "red", alpha = 0.2),
+      cell_text(weight = "bold")
+    ),
+    locations = cells_body(
+      columns = c(estimate, p.value),
+      rows = p.value <= 1e-2
+    )
+  ) |>
+  cols_move_to_start(p.value) |>
+  cols_label(
+    p.value = "P Value",
+    estimate = "Coefficient",
+    std.error = "Standard Error",
+    statistic = "Statistic"
+  ) |>
+  fmt_scientific(
+    columns = c(p.value)
+  )
+```
+
+```{r}
+#| label: Prep pca for inference
+
+pca_prep <- pca_recipe |>
+  prep()
+pca_prep
+```
+
+```{r}
+#| label: Baking pca
+
+pca_baked <- pca_prep |>
+  bake(new_data = NULL)
+```
+
+```{r}
+#| label: Extract loadings
+
+pca_tidy <- tidy(pca_prep, 4, type = "coef") # tidy step 4 - the PCA step
+```
+
+```{r}
+#| label: Plotting with ggplot
+
+pca_tidy |>
+  filter(component %in% c("PC1", "PC2", "PC5", "PC7")) |>
+  ggplot(aes(x = value, y = terms, fill = abs(value))) +
+  geom_col() +
+  theme(legend.position = "none") +
+  scale_fill_gradient(low = "black", high = "red") +
+  facet_wrap(vars(component))
+
+```
+
+Notes :
+
+-   PC1
+
+    -   Good hospitals are good
+
+-   PC2
+
+    -   right = prioritize quite and clean, want their environment taken care of
+
+    -   left = prioritizes information
+
+    -   comfort vs information
+
+-   PC3
+
+    -   right = discharge information and cleanliness
+
+    -   left = quite and doctor communication
+
+    -   clean vs quiet
+
+-   PC4
+
+    -   right = didn't answer all questions, just overall and recommending?
+
+    -   left = Discharge info, medicine communication, staff responsiveness (next steps)
+
+-   PC5
+
+    -   right = medicine info, doctor communication (Info from Doctor specifically)
+
+    -   left = quiet, discharge info (want the info, but doesn't want to be bothered)
+
+-   PC6
+
+    -   right = Doctor communication, discharge information, other stuffs (talk to doctor and leave)
+
+    -   left = staff responsiveness, nurse communication (want staff to be attentive)
+
+-   PC7
+
+    -   right = care transition, medicine communication (want to know what they need to do)
+
+    -   left = nurse communication, doctor communication, staff responsiveness (info about now vs after)
+
+-   PC8
+
+    -   right = communication about medicines
+
+    -   left = care transition
+
+    -   medicines vs life style changes
+
+-   PC9
+
+    -   right = Nurse communication
+
+    -   left = Staff responsiveness
 
 **DELETE THIS, DO PRINCIPLE COMPONENT ANALYSIS**
