@@ -69,10 +69,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -131,7 +131,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#design-and-data-collection" id="toc-design-and-data-collection" class="nav-link active" data-scroll-target="#design-and-data-collection">Design and Data Collection</a></li>
+  <li><a href="#data-massaging" id="toc-data-massaging" class="nav-link" data-scroll-target="#data-massaging">Data Massaging</a></li>
+  <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis">Exploratory Data Analysis</a></li>
+  <li><a href="#modeling-optional-section" id="toc-modeling-optional-section" class="nav-link" data-scroll-target="#modeling-optional-section">Modeling (Optional Section)</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -153,32 +163,556 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<p><strong>YAP ABOUT THE QUESTION AND WHAT WILL BE DONE. ABSTRACT TYPE STUFF</strong></p>
-<p>CONTEXT: Hospital admins are twitchy about this stuff and care alot about how their hospitals are reated and the fluctuations. Question survey stuffs. Deal with fluctuations</p>
+<section id="design-and-data-collection" class="level2">
+<h2 class="anchored" data-anchor-id="design-and-data-collection">Design and Data Collection</h2>
+<section id="data-collection" class="level4">
+<h4 class="anchored" data-anchor-id="data-collection">Data Collection</h4>
+<p>This project aims to analyze hospital survey data to determine what effects a hospital’s overall rating. The hospital data that will be used was retrieved from the Centers for Medicare and Medicaid (CMS) <a href="https://data.cms.gov/provider-data/dataset/dgck-syfz#data-table" class="uri" title="CMS Website Link">website</a>. This data was accessed on April 10th, 2025 and contains data from 2023 - 2024 from a multitude of different hospitals. This data contains 3 important metrics: star rating, answer percentage, and linear mean value. Of these metrics, the star rating is a 1-5 star rating given by the CMS as part of their initiative to make their Compare Web sites more intuitive. The answer percentage is the distribution of answers within each question. Most of the questions have “Always”, “Usually”, and “Sometimes or Never” as possible answers. The linear mean value is the metric that will be used for this analysis. This metric is an adjusted score accounting for patient mix, survey mode, and quarterly weighting. More details can be found <a href="https://www.hcahpsonline.org/globalassets/hcahps/star-ratings/tech-notes/april_2025_star-ratings_tech_notes.pdf" class="uri" title="CMS Technical Documentation">here</a>.</p>
+</section>
+<section id="design" class="level4">
+<h4 class="anchored" data-anchor-id="design">Design</h4>
+<p>Before we create the model, we must first clean the data. Since only survey data is being considered, location data will not be included in this analysis. After isolating the linear mean values, we will fit a model using principle component analysis. Since our goal is inference, we already know we want to include all components, and we are not evaluating model predictions, we will not be creating a holdout set. After the model is created, we will look at the p-values of each component to determine how significant each component is.</p>
+</section>
+</section>
+<section id="data-massaging" class="level2">
+<h2 class="anchored" data-anchor-id="data-massaging">Data Massaging</h2>
+<p>Since we will not be using location data, we will remove it from our dataset.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>here<span class="sc">::</span><span class="fu">i_am</span>(<span class="st">"Project_1.qmd"</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rsample)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(yardstick)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(probably)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>hospital <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"Data/HCAHPS-Hospital.csv"</span>), <span class="at">na =</span> <span class="fu">c</span>(<span class="st">"Not Applicable"</span>, <span class="st">"Not Available"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>hospital <span class="ot">&lt;-</span> hospital <span class="sc">|&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clean_names</span>()</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>hospital_1 <span class="ot">&lt;-</span> hospital <span class="sc">|&gt;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">c</span>(<span class="st">"address"</span>, </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>       <span class="st">"city_town"</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>       <span class="st">"telephone_number"</span>, </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>       <span class="st">"hcahps_answer_description"</span>, </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>       <span class="st">"state"</span>, </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>       <span class="st">"zip_code"</span>, </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>       <span class="st">"county_parish"</span>) <span class="co"># remove all location data</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>Because of the layout of the data, we have a lot of <em>missing</em> data in our three <code>metric columns</code>. This is the case since each entry in our <code>question column</code> is specific to a single metric.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>hospital <span class="ot">&lt;-</span> hospital <span class="sc">|&gt;</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clean_names</span>()</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>hospital_1 <span class="ot">&lt;-</span> hospital <span class="sc">|&gt;</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">c</span>(<span class="st">"address"</span>, <span class="st">"city_town"</span>,<span class="st">"telephone_number"</span>, <span class="st">"hcahps_answer_description"</span>) <span class="co"># Not Finished</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>hospital_1_missing <span class="ot">&lt;-</span> <span class="fu">head</span>(hospital_1) <span class="sc">|&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(hcahps_question, </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>         patient_survey_star_rating, </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>         hcahps_answer_percent, </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>         hcahps_linear_mean_value)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">gt</span>(</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  hospital_1_missing,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">rowname_col =</span> <span class="st">"hcahps_question"</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(<span class="at">title =</span> <span class="st">"Glimpse of Missing Data"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_source_note</span>(<span class="at">source_note =</span> <span class="st">"2024 data from Centers for Medicare &amp; Medicaid Services"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_align_table_header</span>(<span class="at">align =</span> <span class="st">"right"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">patient_survey_star_rating =</span> <span class="st">"Star Rating"</span>,</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">hcahps_answer_percent =</span> <span class="st">"Answer Percent"</span>,</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">hcahps_linear_mean_value =</span> <span class="st">"Linear Mean Value"</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div id="mzrfakrksy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#mzrfakrksy table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#mzrfakrksy thead, #mzrfakrksy tbody, #mzrfakrksy tfoot, #mzrfakrksy tr, #mzrfakrksy td, #mzrfakrksy th {
+  border-style: none;
+}
+
+#mzrfakrksy p {
+  margin: 0;
+  padding: 0;
+}
+
+#mzrfakrksy .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#mzrfakrksy .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#mzrfakrksy .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#mzrfakrksy .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#mzrfakrksy .gt_heading {
+  background-color: #FFFFFF;
+  text-align: right;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#mzrfakrksy .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#mzrfakrksy .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#mzrfakrksy .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#mzrfakrksy .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#mzrfakrksy .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#mzrfakrksy .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#mzrfakrksy .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#mzrfakrksy .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#mzrfakrksy .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#mzrfakrksy .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#mzrfakrksy .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#mzrfakrksy .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#mzrfakrksy .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#mzrfakrksy .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mzrfakrksy .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#mzrfakrksy .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#mzrfakrksy .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#mzrfakrksy .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mzrfakrksy .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#mzrfakrksy .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#mzrfakrksy .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#mzrfakrksy .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mzrfakrksy .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#mzrfakrksy .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#mzrfakrksy .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#mzrfakrksy .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#mzrfakrksy .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#mzrfakrksy .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mzrfakrksy .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#mzrfakrksy .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mzrfakrksy .gt_left {
+  text-align: left;
+}
+
+#mzrfakrksy .gt_center {
+  text-align: center;
+}
+
+#mzrfakrksy .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#mzrfakrksy .gt_font_normal {
+  font-weight: normal;
+}
+
+#mzrfakrksy .gt_font_bold {
+  font-weight: bold;
+}
+
+#mzrfakrksy .gt_font_italic {
+  font-style: italic;
+}
+
+#mzrfakrksy .gt_super {
+  font-size: 65%;
+}
+
+#mzrfakrksy .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#mzrfakrksy .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#mzrfakrksy .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#mzrfakrksy .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#mzrfakrksy .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#mzrfakrksy .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#mzrfakrksy .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#mzrfakrksy .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#mzrfakrksy div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="4" class="gt_heading gt_title gt_font_normal gt_bottom_border" style="">Glimpse of Missing Data</td>
+    </tr>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="a::stub"></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="patient_survey_star_rating">Star Rating</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="hcahps_answer_percent">Answer Percent</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="hcahps_linear_mean_value">Linear Mean Value</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><th id="stub_1_1" scope="row" class="gt_row gt_left gt_stub">Patients who reported that their nurses "Always" communicated well</th>
+<td headers="stub_1_1 patient_survey_star_rating" class="gt_row gt_right">NA</td>
+<td headers="stub_1_1 hcahps_answer_percent" class="gt_row gt_right">72</td>
+<td headers="stub_1_1 hcahps_linear_mean_value" class="gt_row gt_right">NA</td></tr>
+    <tr><th id="stub_1_2" scope="row" class="gt_row gt_left gt_stub">Patients who reported that their nurses "Sometimes" or "Never" communicated well</th>
+<td headers="stub_1_2 patient_survey_star_rating" class="gt_row gt_right">NA</td>
+<td headers="stub_1_2 hcahps_answer_percent" class="gt_row gt_right">6</td>
+<td headers="stub_1_2 hcahps_linear_mean_value" class="gt_row gt_right">NA</td></tr>
+    <tr><th id="stub_1_3" scope="row" class="gt_row gt_left gt_stub">Patients who reported that their nurses "Usually" communicated well</th>
+<td headers="stub_1_3 patient_survey_star_rating" class="gt_row gt_right">NA</td>
+<td headers="stub_1_3 hcahps_answer_percent" class="gt_row gt_right">22</td>
+<td headers="stub_1_3 hcahps_linear_mean_value" class="gt_row gt_right">NA</td></tr>
+    <tr><th id="stub_1_4" scope="row" class="gt_row gt_left gt_stub">Nurse communication - linear mean score</th>
+<td headers="stub_1_4 patient_survey_star_rating" class="gt_row gt_right">NA</td>
+<td headers="stub_1_4 hcahps_answer_percent" class="gt_row gt_right">NA</td>
+<td headers="stub_1_4 hcahps_linear_mean_value" class="gt_row gt_right">89</td></tr>
+    <tr><th id="stub_1_5" scope="row" class="gt_row gt_left gt_stub">Nurse communication - star rating</th>
+<td headers="stub_1_5 patient_survey_star_rating" class="gt_row gt_right">2</td>
+<td headers="stub_1_5 hcahps_answer_percent" class="gt_row gt_right">NA</td>
+<td headers="stub_1_5 hcahps_linear_mean_value" class="gt_row gt_right">NA</td></tr>
+    <tr><th id="stub_1_6" scope="row" class="gt_row gt_left gt_stub">Patients who reported that their nurses "Always" treated them with courtesy and respect</th>
+<td headers="stub_1_6 patient_survey_star_rating" class="gt_row gt_right">NA</td>
+<td headers="stub_1_6 hcahps_answer_percent" class="gt_row gt_right">82</td>
+<td headers="stub_1_6 hcahps_linear_mean_value" class="gt_row gt_right">NA</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="4">2024 data from Centers for Medicare &amp; Medicaid Services</td>
+    </tr>
+  </tfoot>
+  
+</table>
 </div>
+</div>
+</div>
+<p>To remove this <em>missing</em> data, we will separate the original data set into three different datasets. One for each of our metrics. Although we will only be using the linear mean value dataset, the formatting changes will be applied to all three datasets in order to keep the entire set of data in a like format.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>hospital_star_rating <span class="ot">&lt;-</span> hospital_1 <span class="sc">|&gt;</span> <span class="co"># Star rating is a 1-5 rating of service</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
@@ -206,149 +740,42 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(<span class="st">`</span><span class="at">hcahps_linear_mean_value</span><span class="st">`</span>)</span>
 <span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>Now, the linear mean value data is isolated from the rest.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>hospital_star_rating_pivot <span class="ot">&lt;-</span> hospital_star_rating <span class="sc">|&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">id_cols =</span> <span class="st">`</span><span class="at">facility_id</span><span class="st">`</span>,</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">names_from =</span> <span class="st">`</span><span class="at">hcahps_measure_id</span><span class="st">`</span>,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">values_from =</span> <span class="st">`</span><span class="at">patient_survey_star_rating</span><span class="st">`</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clean_names</span>() <span class="sc">|&gt;</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename_with</span>(</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    \(x) <span class="fu">str_remove</span>(x , <span class="st">"_star_rating"</span>)</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>hospital_ans_perc_pivot <span class="ot">&lt;-</span> hospital_ans_perc <span class="sc">|&gt;</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">id_cols =</span> <span class="st">`</span><span class="at">facility_id</span><span class="st">`</span>,</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>              <span class="at">names_from =</span> <span class="st">`</span><span class="at">hcahps_measure_id</span><span class="st">`</span>,</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>              <span class="at">values_from =</span> <span class="st">`</span><span class="at">hcahps_answer_percent</span><span class="st">`</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clean_names</span>() <span class="sc">|&gt;</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename_with</span>(</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    \(x) <span class="fu">str_remove</span>(x , <span class="st">"_p"</span>)</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>hospital_linear_mean_pivot <span class="ot">&lt;-</span> hospital_linear_mean <span class="sc">|&gt;</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">id_cols =</span> <span class="st">`</span><span class="at">facility_id</span><span class="st">`</span>,</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>              <span class="at">names_from =</span> <span class="st">`</span><span class="at">hcahps_measure_id</span><span class="st">`</span>,</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>              <span class="at">values_from =</span> <span class="st">`</span><span class="at">hcahps_linear_mean_value</span><span class="st">`</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clean_names</span>() <span class="sc">|&gt;</span></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(</span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    \(x) <span class="fu">str_remove</span>(x , <span class="st">"_linear_score"</span>)</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>hospital_linear_questions_pivot <span class="ot">&lt;-</span> hospital_linear_mean <span class="sc">|&gt;</span></span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">id_cols =</span> <span class="st">`</span><span class="at">facility_id</span><span class="st">`</span>,</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>              <span class="at">names_from =</span> <span class="st">`</span><span class="at">hcahps_measure_id</span><span class="st">`</span>,</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>              <span class="at">values_from =</span> <span class="st">`</span><span class="at">hcahps_question</span><span class="st">`</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clean_names</span>() <span class="sc">|&gt;</span></span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(</span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    \(x) <span class="fu">str_remove</span>(x , <span class="st">"_linear_score"</span>)</span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(facility_id <span class="sc">==</span> <span class="st">"010001"</span> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> hospital_linear_mean_pivot,</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> h_hsp_rating, <span class="at">y =</span> h_recmnd)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="Project_1_files/figure-html/Rating vs Recomend analysis-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<p>There is a positive correlation between the overall hospital rating and the recommendation likelihood. This makes sense since a hospital with a higher rating should be more likely to be recommended. We will be using the overall hospital rating as our response variable. We will judge the other variable to see how much they effect the overall hospital rating.</p>
-<p>To analyze the data and answer our question, we will use principle component analysis.</p>
-<p>No training/test set because we are not evaluating how good the predictions are. We know the model/number of components and that everything is correlated before looking at data, so no training/test set because solely for inference.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>linear_model <span class="ot">&lt;-</span> <span class="fu">linear_reg</span>(<span class="at">mode =</span> <span class="st">"regression"</span>, <span class="at">engine =</span> <span class="st">"lm"</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>linear_wflow <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">|&gt;</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(linear_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>pca_recipe <span class="ot">&lt;-</span> <span class="fu">recipe</span>(</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  h_recmnd <span class="sc">~</span> . , <span class="at">data =</span> hospital_linear_mean_pivot</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="do">## ~ . indicates to use all variables in the dataset as predictors besides the response</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update_role</span>(facility_id, <span class="at">new_role =</span> <span class="st">"id"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_rm</span>(h_hsp_rating) <span class="sc">|&gt;</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_normalize</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">|&gt;</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">|&gt;</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_pca</span>(<span class="fu">all_predictors</span>(), <span class="at">num_comp =</span> <span class="dv">8</span>)</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>linear_wflow <span class="ot">&lt;-</span> linear_wflow <span class="sc">|&gt;</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(pca_recipe)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>linear_fit <span class="ot">&lt;-</span> <span class="fu">fit</span>(linear_wflow, <span class="at">data =</span> hospital_linear_mean_pivot)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(linear_fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 9 × 5
-  term        estimate std.error statistic   p.value
-  &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
-1 (Intercept)  86.6       0.0415  2085.    0        
-2 PC1           1.75      0.0171   102.    0        
-3 PC2           0.516     0.0530     9.74  4.26e- 22
-4 PC3          -0.0430    0.0563    -0.763 4.45e-  1
-5 PC4          -0.322     0.0798    -4.04  5.56e-  5
-6 PC5          -1.19      0.0808   -14.8   7.64e- 48
-7 PC6          -0.761     0.102     -7.44  1.27e- 13
-8 PC7          -2.60      0.111    -23.5   2.14e-112
-9 PC8           0.375     0.139      2.70  7.03e-  3</code></pre>
-</div>
-</div>
-<ul>
-<li>Note below 0.01 can be considered significant</li>
-</ul>
-<div class="cell" data-html-table-processing="none">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Note the html-table-processing: none option in the chunk options</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># The table doesn't display with the default striping in RStudio</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># But Rendering to HTML adds it back in unless you tell it not to</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">gt</span>(</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(linear_fit),</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">rowname_col =</span> <span class="st">"term"</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(<span class="at">title =</span> <span class="st">"Significance of Components"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_source_note</span>(<span class="at">source_note =</span> <span class="st">"XXXXXXX"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_align_table_header</span>(<span class="at">align =</span> <span class="st">"right"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_style</span>(</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">style =</span> <span class="fu">list</span>(</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">cell_fill</span>(<span class="at">color =</span> <span class="st">"red"</span>, <span class="at">alpha =</span> <span class="fl">0.2</span>),</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>      <span class="fu">cell_text</span>(<span class="at">weight =</span> <span class="st">"bold"</span>)</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">locations =</span> <span class="fu">cells_body</span>(</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">columns =</span> <span class="fu">c</span>(estimate, p.value),</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">rows =</span> p.value <span class="sc">&lt;=</span> <span class="fl">1e-2</span></span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_move_to_start</span>(p.value) <span class="sc">|&gt;</span></span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">p.value =</span> <span class="st">"P Value"</span>,</span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">estimate =</span> <span class="st">"Coefficient"</span>,</span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">std.error =</span> <span class="st">"Standard Error"</span>,</span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">statistic =</span> <span class="st">"Statistic"</span></span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_scientific</span>(</span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(p.value)</span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>hospital_linear_mean_partial <span class="ot">&lt;-</span> <span class="fu">head</span>(hospital_linear_mean) <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(hcahps_question, </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>         hcahps_linear_mean_value</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>         )</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">gt</span>(</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  hospital_linear_mean_partial,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">rowname_col =</span> <span class="st">"hcahps_question"</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(<span class="at">title =</span> <span class="st">"Glimpse of Linear Mean Data"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_source_note</span>(<span class="at">source_note =</span> <span class="st">"2024 data from Centers for Medicare &amp; Medicaid Services"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_align_table_header</span>(<span class="at">align =</span> <span class="st">"right"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">hcahps_linear_mean_value =</span> <span class="st">"Linear Mean Value"</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
-<div id="qqrpywapos" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#qqrpywapos table {
+<div id="scdlxcvdff" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#scdlxcvdff table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#qqrpywapos thead, #qqrpywapos tbody, #qqrpywapos tfoot, #qqrpywapos tr, #qqrpywapos td, #qqrpywapos th {
+#scdlxcvdff thead, #scdlxcvdff tbody, #scdlxcvdff tfoot, #scdlxcvdff tr, #scdlxcvdff td, #scdlxcvdff th {
   border-style: none;
 }
 
-#qqrpywapos p {
+#scdlxcvdff p {
   margin: 0;
   padding: 0;
 }
 
-#qqrpywapos .gt_table {
+#scdlxcvdff .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -374,12 +801,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-left-color: #D3D3D3;
 }
 
-#qqrpywapos .gt_caption {
+#scdlxcvdff .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#qqrpywapos .gt_title {
+#scdlxcvdff .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -391,7 +818,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 0;
 }
 
-#qqrpywapos .gt_subtitle {
+#scdlxcvdff .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -403,7 +830,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-width: 0;
 }
 
-#qqrpywapos .gt_heading {
+#scdlxcvdff .gt_heading {
   background-color: #FFFFFF;
   text-align: right;
   border-bottom-color: #FFFFFF;
@@ -415,13 +842,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#qqrpywapos .gt_bottom_border {
+#scdlxcvdff .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#qqrpywapos .gt_col_headings {
+#scdlxcvdff .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -436,7 +863,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#qqrpywapos .gt_col_heading {
+#scdlxcvdff .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -456,7 +883,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   overflow-x: hidden;
 }
 
-#qqrpywapos .gt_column_spanner_outer {
+#scdlxcvdff .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -468,15 +895,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 4px;
 }
 
-#qqrpywapos .gt_column_spanner_outer:first-child {
+#scdlxcvdff .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#qqrpywapos .gt_column_spanner_outer:last-child {
+#scdlxcvdff .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#qqrpywapos .gt_column_spanner {
+#scdlxcvdff .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -488,11 +915,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   width: 100%;
 }
 
-#qqrpywapos .gt_spanner_row {
+#scdlxcvdff .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#qqrpywapos .gt_group_heading {
+#scdlxcvdff .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -518,7 +945,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   text-align: left;
 }
 
-#qqrpywapos .gt_empty_group_heading {
+#scdlxcvdff .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -533,15 +960,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
 }
 
-#qqrpywapos .gt_from_md > :first-child {
+#scdlxcvdff .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#qqrpywapos .gt_from_md > :last-child {
+#scdlxcvdff .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#qqrpywapos .gt_row {
+#scdlxcvdff .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -560,7 +987,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   overflow-x: hidden;
 }
 
-#qqrpywapos .gt_stub {
+#scdlxcvdff .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -573,7 +1000,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#qqrpywapos .gt_stub_row_group {
+#scdlxcvdff .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -587,15 +1014,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: top;
 }
 
-#qqrpywapos .gt_row_group_first td {
+#scdlxcvdff .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#qqrpywapos .gt_row_group_first th {
+#scdlxcvdff .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#qqrpywapos .gt_summary_row {
+#scdlxcvdff .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -605,16 +1032,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#qqrpywapos .gt_first_summary_row {
+#scdlxcvdff .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#qqrpywapos .gt_first_summary_row.thick {
+#scdlxcvdff .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#qqrpywapos .gt_last_summary_row {
+#scdlxcvdff .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -624,7 +1051,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#qqrpywapos .gt_grand_summary_row {
+#scdlxcvdff .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -634,7 +1061,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#qqrpywapos .gt_first_grand_summary_row {
+#scdlxcvdff .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -644,7 +1071,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-color: #D3D3D3;
 }
 
-#qqrpywapos .gt_last_grand_summary_row_top {
+#scdlxcvdff .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -654,11 +1081,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#qqrpywapos .gt_striped {
+#scdlxcvdff .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#qqrpywapos .gt_table_body {
+#scdlxcvdff .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -667,7 +1094,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#qqrpywapos .gt_footnotes {
+#scdlxcvdff .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -681,7 +1108,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#qqrpywapos .gt_footnote {
+#scdlxcvdff .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -690,7 +1117,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#qqrpywapos .gt_sourcenotes {
+#scdlxcvdff .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -704,7 +1131,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#qqrpywapos .gt_sourcenote {
+#scdlxcvdff .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -712,72 +1139,1250 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#qqrpywapos .gt_left {
+#scdlxcvdff .gt_left {
   text-align: left;
 }
 
-#qqrpywapos .gt_center {
+#scdlxcvdff .gt_center {
   text-align: center;
 }
 
-#qqrpywapos .gt_right {
+#scdlxcvdff .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#qqrpywapos .gt_font_normal {
+#scdlxcvdff .gt_font_normal {
   font-weight: normal;
 }
 
-#qqrpywapos .gt_font_bold {
+#scdlxcvdff .gt_font_bold {
   font-weight: bold;
 }
 
-#qqrpywapos .gt_font_italic {
+#scdlxcvdff .gt_font_italic {
   font-style: italic;
 }
 
-#qqrpywapos .gt_super {
+#scdlxcvdff .gt_super {
   font-size: 65%;
 }
 
-#qqrpywapos .gt_footnote_marks {
+#scdlxcvdff .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#qqrpywapos .gt_asterisk {
+#scdlxcvdff .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#qqrpywapos .gt_indent_1 {
+#scdlxcvdff .gt_indent_1 {
   text-indent: 5px;
 }
 
-#qqrpywapos .gt_indent_2 {
+#scdlxcvdff .gt_indent_2 {
   text-indent: 10px;
 }
 
-#qqrpywapos .gt_indent_3 {
+#scdlxcvdff .gt_indent_3 {
   text-indent: 15px;
 }
 
-#qqrpywapos .gt_indent_4 {
+#scdlxcvdff .gt_indent_4 {
   text-indent: 20px;
 }
 
-#qqrpywapos .gt_indent_5 {
+#scdlxcvdff .gt_indent_5 {
   text-indent: 25px;
 }
 
-#qqrpywapos .katex-display {
+#scdlxcvdff .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#qqrpywapos div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#scdlxcvdff div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="2" class="gt_heading gt_title gt_font_normal gt_bottom_border" style="">Glimpse of Linear Mean Data</td>
+    </tr>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="a::stub"></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="hcahps_linear_mean_value">Linear Mean Value</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><th id="stub_1_1" scope="row" class="gt_row gt_left gt_stub">Nurse communication - linear mean score</th>
+<td headers="stub_1_1 hcahps_linear_mean_value" class="gt_row gt_right">89</td></tr>
+    <tr><th id="stub_1_2" scope="row" class="gt_row gt_left gt_stub">Doctor communication - linear mean score</th>
+<td headers="stub_1_2 hcahps_linear_mean_value" class="gt_row gt_right">91</td></tr>
+    <tr><th id="stub_1_3" scope="row" class="gt_row gt_left gt_stub">Staff responsiveness - linear mean score</th>
+<td headers="stub_1_3 hcahps_linear_mean_value" class="gt_row gt_right">80</td></tr>
+    <tr><th id="stub_1_4" scope="row" class="gt_row gt_left gt_stub">Communication about medicines - linear mean score</th>
+<td headers="stub_1_4 hcahps_linear_mean_value" class="gt_row gt_right">75</td></tr>
+    <tr><th id="stub_1_5" scope="row" class="gt_row gt_left gt_stub">Discharge information - linear mean score</th>
+<td headers="stub_1_5 hcahps_linear_mean_value" class="gt_row gt_right">85</td></tr>
+    <tr><th id="stub_1_6" scope="row" class="gt_row gt_left gt_stub">Care transition - linear mean score</th>
+<td headers="stub_1_6 hcahps_linear_mean_value" class="gt_row gt_right">82</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="2">2024 data from Centers for Medicare &amp; Medicaid Services</td>
+    </tr>
+  </tfoot>
+  
+</table>
+</div>
+</div>
+</div>
+<p>However, in order to further analyze the data, we need to pivot the <code>question column</code> to create columns for each individual question.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>hospital_star_rating_pivot <span class="ot">&lt;-</span> hospital_star_rating <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">id_cols =</span> <span class="st">`</span><span class="at">facility_id</span><span class="st">`</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">names_from =</span> <span class="st">`</span><span class="at">hcahps_question</span><span class="st">`</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">values_from =</span> <span class="st">`</span><span class="at">patient_survey_star_rating</span><span class="st">`</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clean_names</span>() <span class="sc">|&gt;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename_with</span>(</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    \(x) <span class="fu">str_remove</span>(x , <span class="st">"_star_rating"</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>hospital_ans_perc_pivot <span class="ot">&lt;-</span> hospital_ans_perc <span class="sc">|&gt;</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">id_cols =</span> <span class="st">`</span><span class="at">facility_id</span><span class="st">`</span>,</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>              <span class="at">names_from =</span> <span class="st">`</span><span class="at">hcahps_question</span><span class="st">`</span>,</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>              <span class="at">values_from =</span> <span class="st">`</span><span class="at">hcahps_answer_percent</span><span class="st">`</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clean_names</span>()</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>hospital_linear_mean_pivot <span class="ot">&lt;-</span> hospital_linear_mean <span class="sc">|&gt;</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">id_cols =</span> <span class="st">`</span><span class="at">facility_id</span><span class="st">`</span>,</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>              <span class="at">names_from =</span> <span class="st">`</span><span class="at">hcahps_question</span><span class="st">`</span>,</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>              <span class="at">values_from =</span> <span class="st">`</span><span class="at">hcahps_linear_mean_value</span><span class="st">`</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clean_names</span>() <span class="sc">|&gt;</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    \(x) <span class="fu">str_remove</span>(x , <span class="st">"_linear_mean_score"</span>)</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>hospital_linear_mean_pivot_partial <span class="ot">&lt;-</span> <span class="fu">head</span>(hospital_linear_mean_pivot) <span class="sc">|&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="st">"Quiteness"</span> <span class="ot">=</span> quietness, </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>         <span class="st">"Cleanliness"</span> <span class="ot">=</span> cleanliness, </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>         <span class="st">"Nurse Communication"</span> <span class="ot">=</span> nurse_communication, </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>         <span class="st">"Doctor Communication"</span> <span class="ot">=</span> doctor_communication, </span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>         <span class="st">"Staff Responsiveness"</span> <span class="ot">=</span> staff_responsiveness, </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>         <span class="st">"Communication About Medicines"</span> <span class="ot">=</span> communication_about_medicines,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>         <span class="st">"Discharge Information"</span> <span class="ot">=</span> discharge_information,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>         <span class="st">"Care Transition"</span> <span class="ot">=</span> care_transition,</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>         <span class="st">"Overall Rating"</span> <span class="ot">=</span> overall_hospital_rating,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>         <span class="st">"Recommend Hospital"</span> <span class="ot">=</span> recommend_hospital</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>         )</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="fu">gt</span>(</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(hospital_linear_mean_pivot_partial),</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">rowname_col =</span> <span class="st">"facility_id"</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(<span class="at">title =</span> <span class="st">"Glimpse of Linear Mean Data Pivoted"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_source_note</span>(<span class="at">source_note =</span> <span class="st">"2024 data from Centers for Medicare &amp; Medicaid Services"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_stubhead</span>(<span class="at">label =</span> <span class="st">"Facility ID"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_align_table_header</span>(<span class="at">align =</span> <span class="st">"left"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div id="dqgqtbsgxv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#dqgqtbsgxv table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#dqgqtbsgxv thead, #dqgqtbsgxv tbody, #dqgqtbsgxv tfoot, #dqgqtbsgxv tr, #dqgqtbsgxv td, #dqgqtbsgxv th {
+  border-style: none;
+}
+
+#dqgqtbsgxv p {
+  margin: 0;
+  padding: 0;
+}
+
+#dqgqtbsgxv .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#dqgqtbsgxv .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#dqgqtbsgxv .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#dqgqtbsgxv .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#dqgqtbsgxv .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#dqgqtbsgxv .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#dqgqtbsgxv .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#dqgqtbsgxv .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#dqgqtbsgxv .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#dqgqtbsgxv .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#dqgqtbsgxv .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#dqgqtbsgxv .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#dqgqtbsgxv .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#dqgqtbsgxv .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#dqgqtbsgxv .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#dqgqtbsgxv .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#dqgqtbsgxv .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#dqgqtbsgxv .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#dqgqtbsgxv .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#dqgqtbsgxv .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#dqgqtbsgxv .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#dqgqtbsgxv .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#dqgqtbsgxv .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#dqgqtbsgxv .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#dqgqtbsgxv .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#dqgqtbsgxv .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#dqgqtbsgxv .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#dqgqtbsgxv .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#dqgqtbsgxv .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#dqgqtbsgxv .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#dqgqtbsgxv .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#dqgqtbsgxv .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#dqgqtbsgxv .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#dqgqtbsgxv .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#dqgqtbsgxv .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#dqgqtbsgxv .gt_left {
+  text-align: left;
+}
+
+#dqgqtbsgxv .gt_center {
+  text-align: center;
+}
+
+#dqgqtbsgxv .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#dqgqtbsgxv .gt_font_normal {
+  font-weight: normal;
+}
+
+#dqgqtbsgxv .gt_font_bold {
+  font-weight: bold;
+}
+
+#dqgqtbsgxv .gt_font_italic {
+  font-style: italic;
+}
+
+#dqgqtbsgxv .gt_super {
+  font-size: 65%;
+}
+
+#dqgqtbsgxv .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#dqgqtbsgxv .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#dqgqtbsgxv .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#dqgqtbsgxv .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#dqgqtbsgxv .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#dqgqtbsgxv .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#dqgqtbsgxv .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#dqgqtbsgxv .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#dqgqtbsgxv div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="11" class="gt_heading gt_title gt_font_normal gt_bottom_border" style="">Glimpse of Linear Mean Data Pivoted</td>
+    </tr>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="a::stub">Facility ID</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Nurse-Communication">Nurse Communication</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Doctor-Communication">Doctor Communication</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Staff-Responsiveness">Staff Responsiveness</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Communication-About-Medicines">Communication About Medicines</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Discharge-Information">Discharge Information</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Care-Transition">Care Transition</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Cleanliness">Cleanliness</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Quiteness">Quiteness</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Overall-Rating">Overall Rating</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Recommend-Hospital">Recommend Hospital</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><th id="stub_1_1" scope="row" class="gt_row gt_right gt_stub">010001</th>
+<td headers="stub_1_1 Nurse Communication" class="gt_row gt_right">89</td>
+<td headers="stub_1_1 Doctor Communication" class="gt_row gt_right">91</td>
+<td headers="stub_1_1 Staff Responsiveness" class="gt_row gt_right">80</td>
+<td headers="stub_1_1 Communication About Medicines" class="gt_row gt_right">75</td>
+<td headers="stub_1_1 Discharge Information" class="gt_row gt_right">85</td>
+<td headers="stub_1_1 Care Transition" class="gt_row gt_right">82</td>
+<td headers="stub_1_1 Cleanliness" class="gt_row gt_right">82</td>
+<td headers="stub_1_1 Quiteness" class="gt_row gt_right">87</td>
+<td headers="stub_1_1 Overall Rating" class="gt_row gt_right">89</td>
+<td headers="stub_1_1 Recommend Hospital" class="gt_row gt_right">90</td></tr>
+    <tr><th id="stub_1_2" scope="row" class="gt_row gt_right gt_stub">010005</th>
+<td headers="stub_1_2 Nurse Communication" class="gt_row gt_right">90</td>
+<td headers="stub_1_2 Doctor Communication" class="gt_row gt_right">92</td>
+<td headers="stub_1_2 Staff Responsiveness" class="gt_row gt_right">77</td>
+<td headers="stub_1_2 Communication About Medicines" class="gt_row gt_right">76</td>
+<td headers="stub_1_2 Discharge Information" class="gt_row gt_right">87</td>
+<td headers="stub_1_2 Care Transition" class="gt_row gt_right">81</td>
+<td headers="stub_1_2 Cleanliness" class="gt_row gt_right">86</td>
+<td headers="stub_1_2 Quiteness" class="gt_row gt_right">87</td>
+<td headers="stub_1_2 Overall Rating" class="gt_row gt_right">87</td>
+<td headers="stub_1_2 Recommend Hospital" class="gt_row gt_right">84</td></tr>
+    <tr><th id="stub_1_3" scope="row" class="gt_row gt_right gt_stub">010006</th>
+<td headers="stub_1_3 Nurse Communication" class="gt_row gt_right">89</td>
+<td headers="stub_1_3 Doctor Communication" class="gt_row gt_right">89</td>
+<td headers="stub_1_3 Staff Responsiveness" class="gt_row gt_right">76</td>
+<td headers="stub_1_3 Communication About Medicines" class="gt_row gt_right">70</td>
+<td headers="stub_1_3 Discharge Information" class="gt_row gt_right">83</td>
+<td headers="stub_1_3 Care Transition" class="gt_row gt_right">76</td>
+<td headers="stub_1_3 Cleanliness" class="gt_row gt_right">79</td>
+<td headers="stub_1_3 Quiteness" class="gt_row gt_right">87</td>
+<td headers="stub_1_3 Overall Rating" class="gt_row gt_right">83</td>
+<td headers="stub_1_3 Recommend Hospital" class="gt_row gt_right">80</td></tr>
+    <tr><th id="stub_1_4" scope="row" class="gt_row gt_right gt_stub">010007</th>
+<td headers="stub_1_4 Nurse Communication" class="gt_row gt_right">94</td>
+<td headers="stub_1_4 Doctor Communication" class="gt_row gt_right">95</td>
+<td headers="stub_1_4 Staff Responsiveness" class="gt_row gt_right">89</td>
+<td headers="stub_1_4 Communication About Medicines" class="gt_row gt_right">83</td>
+<td headers="stub_1_4 Discharge Information" class="gt_row gt_right">92</td>
+<td headers="stub_1_4 Care Transition" class="gt_row gt_right">82</td>
+<td headers="stub_1_4 Cleanliness" class="gt_row gt_right">83</td>
+<td headers="stub_1_4 Quiteness" class="gt_row gt_right">90</td>
+<td headers="stub_1_4 Overall Rating" class="gt_row gt_right">89</td>
+<td headers="stub_1_4 Recommend Hospital" class="gt_row gt_right">88</td></tr>
+    <tr><th id="stub_1_5" scope="row" class="gt_row gt_right gt_stub">010011</th>
+<td headers="stub_1_5 Nurse Communication" class="gt_row gt_right">90</td>
+<td headers="stub_1_5 Doctor Communication" class="gt_row gt_right">90</td>
+<td headers="stub_1_5 Staff Responsiveness" class="gt_row gt_right">83</td>
+<td headers="stub_1_5 Communication About Medicines" class="gt_row gt_right">74</td>
+<td headers="stub_1_5 Discharge Information" class="gt_row gt_right">85</td>
+<td headers="stub_1_5 Care Transition" class="gt_row gt_right">80</td>
+<td headers="stub_1_5 Cleanliness" class="gt_row gt_right">79</td>
+<td headers="stub_1_5 Quiteness" class="gt_row gt_right">84</td>
+<td headers="stub_1_5 Overall Rating" class="gt_row gt_right">86</td>
+<td headers="stub_1_5 Recommend Hospital" class="gt_row gt_right">86</td></tr>
+    <tr><th id="stub_1_6" scope="row" class="gt_row gt_right gt_stub">010012</th>
+<td headers="stub_1_6 Nurse Communication" class="gt_row gt_right">93</td>
+<td headers="stub_1_6 Doctor Communication" class="gt_row gt_right">93</td>
+<td headers="stub_1_6 Staff Responsiveness" class="gt_row gt_right">85</td>
+<td headers="stub_1_6 Communication About Medicines" class="gt_row gt_right">80</td>
+<td headers="stub_1_6 Discharge Information" class="gt_row gt_right">87</td>
+<td headers="stub_1_6 Care Transition" class="gt_row gt_right">79</td>
+<td headers="stub_1_6 Cleanliness" class="gt_row gt_right">83</td>
+<td headers="stub_1_6 Quiteness" class="gt_row gt_right">83</td>
+<td headers="stub_1_6 Overall Rating" class="gt_row gt_right">85</td>
+<td headers="stub_1_6 Recommend Hospital" class="gt_row gt_right">83</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="11">2024 data from Centers for Medicare &amp; Medicaid Services</td>
+    </tr>
+  </tfoot>
+  
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="exploratory-data-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="exploratory-data-analysis">Exploratory Data Analysis</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> hospital_linear_mean_pivot,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> overall_hospital_rating, <span class="at">y =</span> recommend_hospital)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Project_1_files/figure-html/Rating vs Recomend analysis-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>There is a positive correlation between the overall hospital rating and the recommendation likelihood. This makes sense since a hospital with a higher rating should be more likely to be recommended. We will be using the overall hospital rating as our response variable. We will judge the other variable to see how much they effect the overall hospital rating.</p>
+<p>To analyze the data and answer our question, we will use principle component analysis.</p>
+<p>No training/test set because we are not evaluating how good the predictions are. We know the model/number of components and that everything is correlated before looking at data, so no training/test set because solely for inference.</p>
+</section>
+<section id="modeling-optional-section" class="level2">
+<h2 class="anchored" data-anchor-id="modeling-optional-section">Modeling (Optional Section)</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>linear_model <span class="ot">&lt;-</span> <span class="fu">linear_reg</span>(<span class="at">mode =</span> <span class="st">"regression"</span>, <span class="at">engine =</span> <span class="st">"lm"</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>linear_wflow <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">|&gt;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(linear_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>pca_recipe <span class="ot">&lt;-</span> <span class="fu">recipe</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  recommend_hospital <span class="sc">~</span> . , <span class="at">data =</span> hospital_linear_mean_pivot</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="do">## ~ . indicates to use all variables in the dataset as predictors besides the response</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update_role</span>(facility_id, <span class="at">new_role =</span> <span class="st">"id"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_rm</span>(overall_hospital_rating) <span class="sc">|&gt;</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_normalize</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_pca</span>(<span class="fu">all_predictors</span>(), <span class="at">num_comp =</span> <span class="dv">8</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>linear_wflow <span class="ot">&lt;-</span> linear_wflow <span class="sc">|&gt;</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(pca_recipe)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>linear_fit <span class="ot">&lt;-</span> <span class="fu">fit</span>(linear_wflow, <span class="at">data =</span> hospital_linear_mean_pivot)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(linear_fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 9 × 5
+  term        estimate std.error statistic   p.value
+  &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+1 (Intercept)  86.6       0.0415  2085.    0        
+2 PC1           1.75      0.0171   102.    0        
+3 PC2           0.516     0.0530     9.74  4.26e- 22
+4 PC3          -0.0430    0.0563    -0.763 4.45e-  1
+5 PC4          -0.322     0.0798    -4.04  5.56e-  5
+6 PC5          -1.19      0.0808   -14.8   7.64e- 48
+7 PC6          -0.761     0.102     -7.44  1.27e- 13
+8 PC7          -2.60      0.111    -23.5   2.14e-112
+9 PC8           0.375     0.139      2.70  7.03e-  3</code></pre>
+</div>
+</div>
+<ul>
+<li>Note below 0.01 can be considered significant</li>
+</ul>
+<div class="cell" data-html-table-processing="none">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Note the html-table-processing: none option in the chunk options</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># The table doesn't display with the default striping in RStudio</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># But Rendering to HTML adds it back in unless you tell it not to</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>linear_fit_tibble <span class="ot">&lt;-</span> <span class="fu">tidy</span>(linear_fit) <span class="sc">|&gt;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(p.value)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="fu">gt</span>(</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  linear_fit_tibble,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">rowname_col =</span> <span class="st">"term"</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(<span class="at">title =</span> <span class="st">"Significance of Components"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_source_note</span>(<span class="at">source_note =</span> <span class="st">"2024 data from Centers for Medicare &amp; Medicaid Services"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_align_table_header</span>(<span class="at">align =</span> <span class="st">"right"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_style</span>(</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">style =</span> <span class="fu">list</span>(</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>      <span class="fu">cell_fill</span>(<span class="at">color =</span> <span class="st">"red"</span>, <span class="at">alpha =</span> <span class="fl">0.2</span>),</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>      <span class="fu">cell_text</span>(<span class="at">weight =</span> <span class="st">"bold"</span>)</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">locations =</span> <span class="fu">cells_body</span>(</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">columns =</span> <span class="fu">c</span>(estimate, p.value),</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">rows =</span> p.value <span class="sc">&lt;=</span> <span class="fl">1e-2</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_move_to_start</span>(p.value) <span class="sc">|&gt;</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">p.value =</span> <span class="st">"P Value"</span>,</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">estimate =</span> <span class="st">"Coefficient"</span>,</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">std.error =</span> <span class="st">"Standard Error"</span>,</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">statistic =</span> <span class="st">"Statistic"</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_scientific</span>(</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(p.value)</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div id="tslcodwcba" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#tslcodwcba table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#tslcodwcba thead, #tslcodwcba tbody, #tslcodwcba tfoot, #tslcodwcba tr, #tslcodwcba td, #tslcodwcba th {
+  border-style: none;
+}
+
+#tslcodwcba p {
+  margin: 0;
+  padding: 0;
+}
+
+#tslcodwcba .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#tslcodwcba .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#tslcodwcba .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#tslcodwcba .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#tslcodwcba .gt_heading {
+  background-color: #FFFFFF;
+  text-align: right;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tslcodwcba .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tslcodwcba .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tslcodwcba .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#tslcodwcba .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#tslcodwcba .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#tslcodwcba .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#tslcodwcba .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#tslcodwcba .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#tslcodwcba .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#tslcodwcba .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#tslcodwcba .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#tslcodwcba .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#tslcodwcba .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#tslcodwcba .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tslcodwcba .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#tslcodwcba .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#tslcodwcba .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#tslcodwcba .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tslcodwcba .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#tslcodwcba .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#tslcodwcba .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tslcodwcba .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tslcodwcba .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#tslcodwcba .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tslcodwcba .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#tslcodwcba .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tslcodwcba .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tslcodwcba .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tslcodwcba .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tslcodwcba .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tslcodwcba .gt_left {
+  text-align: left;
+}
+
+#tslcodwcba .gt_center {
+  text-align: center;
+}
+
+#tslcodwcba .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#tslcodwcba .gt_font_normal {
+  font-weight: normal;
+}
+
+#tslcodwcba .gt_font_bold {
+  font-weight: bold;
+}
+
+#tslcodwcba .gt_font_italic {
+  font-style: italic;
+}
+
+#tslcodwcba .gt_super {
+  font-size: 65%;
+}
+
+#tslcodwcba .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#tslcodwcba .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#tslcodwcba .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#tslcodwcba .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#tslcodwcba .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#tslcodwcba .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#tslcodwcba .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#tslcodwcba .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#tslcodwcba div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -806,45 +2411,45 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td headers="stub_1_2 estimate" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">1.74650141</td>
 <td headers="stub_1_2 std.error" class="gt_row gt_right">0.01709333</td>
 <td headers="stub_1_2 statistic" class="gt_row gt_right">102.1744309</td></tr>
-    <tr><th id="stub_1_3" scope="row" class="gt_row gt_left gt_stub">PC2</th>
-<td headers="stub_1_3 p.value" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">4.26&nbsp;×&nbsp;10<sup style="font-size: 65%;">−22</sup></td>
-<td headers="stub_1_3 estimate" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">0.51565222</td>
-<td headers="stub_1_3 std.error" class="gt_row gt_right">0.05295927</td>
-<td headers="stub_1_3 statistic" class="gt_row gt_right">9.7367698</td></tr>
-    <tr><th id="stub_1_4" scope="row" class="gt_row gt_left gt_stub">PC3</th>
-<td headers="stub_1_4 p.value" class="gt_row gt_right">4.45&nbsp;×&nbsp;10<sup style="font-size: 65%;">−1</sup></td>
-<td headers="stub_1_4 estimate" class="gt_row gt_right">-0.04300362</td>
-<td headers="stub_1_4 std.error" class="gt_row gt_right">0.05633992</td>
-<td headers="stub_1_4 statistic" class="gt_row gt_right">-0.7632887</td></tr>
-    <tr><th id="stub_1_5" scope="row" class="gt_row gt_left gt_stub">PC4</th>
-<td headers="stub_1_5 p.value" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">5.56&nbsp;×&nbsp;10<sup style="font-size: 65%;">−5</sup></td>
-<td headers="stub_1_5 estimate" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">-0.32213805</td>
-<td headers="stub_1_5 std.error" class="gt_row gt_right">0.07980806</td>
-<td headers="stub_1_5 statistic" class="gt_row gt_right">-4.0364099</td></tr>
-    <tr><th id="stub_1_6" scope="row" class="gt_row gt_left gt_stub">PC5</th>
-<td headers="stub_1_6 p.value" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">7.64&nbsp;×&nbsp;10<sup style="font-size: 65%;">−48</sup></td>
-<td headers="stub_1_6 estimate" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">-1.19465901</td>
-<td headers="stub_1_6 std.error" class="gt_row gt_right">0.08084693</td>
-<td headers="stub_1_6 statistic" class="gt_row gt_right">-14.7768004</td></tr>
-    <tr><th id="stub_1_7" scope="row" class="gt_row gt_left gt_stub">PC6</th>
-<td headers="stub_1_7 p.value" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">1.27&nbsp;×&nbsp;10<sup style="font-size: 65%;">−13</sup></td>
-<td headers="stub_1_7 estimate" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">-0.76053765</td>
-<td headers="stub_1_7 std.error" class="gt_row gt_right">0.10219637</td>
-<td headers="stub_1_7 statistic" class="gt_row gt_right">-7.4419240</td></tr>
-    <tr><th id="stub_1_8" scope="row" class="gt_row gt_left gt_stub">PC7</th>
-<td headers="stub_1_8 p.value" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">2.14&nbsp;×&nbsp;10<sup style="font-size: 65%;">−112</sup></td>
-<td headers="stub_1_8 estimate" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">-2.59640022</td>
-<td headers="stub_1_8 std.error" class="gt_row gt_right">0.11068064</td>
-<td headers="stub_1_8 statistic" class="gt_row gt_right">-23.4584865</td></tr>
-    <tr><th id="stub_1_9" scope="row" class="gt_row gt_left gt_stub">PC8</th>
-<td headers="stub_1_9 p.value" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">7.03&nbsp;×&nbsp;10<sup style="font-size: 65%;">−3</sup></td>
-<td headers="stub_1_9 estimate" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">0.37488977</td>
-<td headers="stub_1_9 std.error" class="gt_row gt_right">0.13898535</td>
-<td headers="stub_1_9 statistic" class="gt_row gt_right">2.6973331</td></tr>
+    <tr><th id="stub_1_3" scope="row" class="gt_row gt_left gt_stub">PC7</th>
+<td headers="stub_1_3 p.value" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">2.14&nbsp;×&nbsp;10<sup style="font-size: 65%;">−112</sup></td>
+<td headers="stub_1_3 estimate" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">-2.59640022</td>
+<td headers="stub_1_3 std.error" class="gt_row gt_right">0.11068064</td>
+<td headers="stub_1_3 statistic" class="gt_row gt_right">-23.4584865</td></tr>
+    <tr><th id="stub_1_4" scope="row" class="gt_row gt_left gt_stub">PC5</th>
+<td headers="stub_1_4 p.value" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">7.64&nbsp;×&nbsp;10<sup style="font-size: 65%;">−48</sup></td>
+<td headers="stub_1_4 estimate" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">-1.19465901</td>
+<td headers="stub_1_4 std.error" class="gt_row gt_right">0.08084693</td>
+<td headers="stub_1_4 statistic" class="gt_row gt_right">-14.7768004</td></tr>
+    <tr><th id="stub_1_5" scope="row" class="gt_row gt_left gt_stub">PC2</th>
+<td headers="stub_1_5 p.value" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">4.26&nbsp;×&nbsp;10<sup style="font-size: 65%;">−22</sup></td>
+<td headers="stub_1_5 estimate" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">0.51565222</td>
+<td headers="stub_1_5 std.error" class="gt_row gt_right">0.05295927</td>
+<td headers="stub_1_5 statistic" class="gt_row gt_right">9.7367698</td></tr>
+    <tr><th id="stub_1_6" scope="row" class="gt_row gt_left gt_stub">PC6</th>
+<td headers="stub_1_6 p.value" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">1.27&nbsp;×&nbsp;10<sup style="font-size: 65%;">−13</sup></td>
+<td headers="stub_1_6 estimate" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">-0.76053765</td>
+<td headers="stub_1_6 std.error" class="gt_row gt_right">0.10219637</td>
+<td headers="stub_1_6 statistic" class="gt_row gt_right">-7.4419240</td></tr>
+    <tr><th id="stub_1_7" scope="row" class="gt_row gt_left gt_stub">PC4</th>
+<td headers="stub_1_7 p.value" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">5.56&nbsp;×&nbsp;10<sup style="font-size: 65%;">−5</sup></td>
+<td headers="stub_1_7 estimate" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">-0.32213805</td>
+<td headers="stub_1_7 std.error" class="gt_row gt_right">0.07980806</td>
+<td headers="stub_1_7 statistic" class="gt_row gt_right">-4.0364099</td></tr>
+    <tr><th id="stub_1_8" scope="row" class="gt_row gt_left gt_stub">PC8</th>
+<td headers="stub_1_8 p.value" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">7.03&nbsp;×&nbsp;10<sup style="font-size: 65%;">−3</sup></td>
+<td headers="stub_1_8 estimate" class="gt_row gt_right" style="background-color: rgba(255,0,0,0.2); font-weight: bold;">0.37488977</td>
+<td headers="stub_1_8 std.error" class="gt_row gt_right">0.13898535</td>
+<td headers="stub_1_8 statistic" class="gt_row gt_right">2.6973331</td></tr>
+    <tr><th id="stub_1_9" scope="row" class="gt_row gt_left gt_stub">PC3</th>
+<td headers="stub_1_9 p.value" class="gt_row gt_right">4.45&nbsp;×&nbsp;10<sup style="font-size: 65%;">−1</sup></td>
+<td headers="stub_1_9 estimate" class="gt_row gt_right">-0.04300362</td>
+<td headers="stub_1_9 std.error" class="gt_row gt_right">0.05633992</td>
+<td headers="stub_1_9 statistic" class="gt_row gt_right">-0.7632887</td></tr>
   </tbody>
   <tfoot class="gt_sourcenotes">
     <tr>
-      <td class="gt_sourcenote" colspan="5">XXXXXXX</td>
+      <td class="gt_sourcenote" colspan="5">2024 data from Centers for Medicare &amp; Medicaid Services</td>
     </tr>
   </tfoot>
   
@@ -853,9 +2458,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>pca_prep <span class="ot">&lt;-</span> pca_recipe <span class="sc">|&gt;</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prep</span>()</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>pca_prep</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>pca_prep <span class="ot">&lt;-</span> pca_recipe <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prep</span>()</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>pca_prep</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code></code></pre>
 </div>
@@ -892,90 +2497,107 @@ id:        1</code></pre>
 <pre><code>── Operations </code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>• Variables removed: h_hsp_rating | Trained</code></pre>
+<pre><code>• Variables removed: overall_hospital_rating | Trained</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>• Centering and scaling for: h_comp_1, h_comp_2, h_comp_3, ... | Trained</code></pre>
+<pre><code>• Centering and scaling for: nurse_communication, ... | Trained</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>• Dummy variables from: &lt;none&gt; | Trained</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>• PCA extraction with: h_comp_1, h_comp_2, h_comp_3, h_comp_5, ... | Trained</code></pre>
+<pre><code>• PCA extraction with: nurse_communication, ... | Trained</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>pca_baked <span class="ot">&lt;-</span> pca_prep <span class="sc">|&gt;</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bake</span>(<span class="at">new_data =</span> <span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>pca_baked <span class="ot">&lt;-</span> pca_prep <span class="sc">|&gt;</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bake</span>(<span class="at">new_data =</span> <span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>pca_tidy <span class="ot">&lt;-</span> <span class="fu">tidy</span>(pca_prep, <span class="dv">4</span>, <span class="at">type =</span> <span class="st">"coef"</span>) <span class="co"># tidy step 4 - the PCA step</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>pca_tidy <span class="ot">&lt;-</span> <span class="fu">tidy</span>(pca_prep, <span class="dv">4</span>, <span class="at">type =</span> <span class="st">"coef"</span>) <span class="co"># tidy step 4 - the PCA step</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>pca_tidy</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 64 × 4
+   terms                         value component id       
+   &lt;chr&gt;                         &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;    
+ 1 nurse_communication           0.389 PC1       pca_f9Ms4
+ 2 doctor_communication          0.363 PC1       pca_f9Ms4
+ 3 staff_responsiveness          0.374 PC1       pca_f9Ms4
+ 4 communication_about_medicines 0.379 PC1       pca_f9Ms4
+ 5 discharge_information         0.339 PC1       pca_f9Ms4
+ 6 care_transition               0.380 PC1       pca_f9Ms4
+ 7 cleanliness                   0.287 PC1       pca_f9Ms4
+ 8 quietness                     0.303 PC1       pca_f9Ms4
+ 9 nurse_communication           0.117 PC2       pca_f9Ms4
+10 doctor_communication          0.161 PC2       pca_f9Ms4
+# ℹ 54 more rows</code></pre>
+</div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>pca_tidy <span class="sc">|&gt;</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(component <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC5"</span>, <span class="st">"PC7"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">y =</span> terms, <span class="at">fill =</span> <span class="fu">abs</span>(value))) <span class="sc">+</span></span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">"black"</span>, <span class="at">high =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(component))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>pca_tidy <span class="sc">|&gt;</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>(component <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"PC3"</span>))) <span class="sc">|&gt;</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">terms =</span> <span class="fu">recode</span>(terms, </span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">quiteness =</span> <span class="st">"Quietness"</span>, </span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">cleanliness =</span> <span class="st">"Cleanliness"</span>, </span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">nurse_communication =</span> <span class="st">"Nurse Communication"</span>, </span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>                        <span class="at">doctor_communication =</span> <span class="st">"Doctor Communication"</span>, </span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>                        <span class="at">staff_responsiveness =</span> <span class="st">"Staff Responsivness"</span>, </span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>                        <span class="at">communication_about_medicines =</span> <span class="st">"Communication About Medicines"</span>,</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>                        <span class="at">discharge_information =</span> <span class="st">"Discharge Information"</span>,</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>                        <span class="at">care_transition =</span> <span class="st">"Care Transition"</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>                        )) <span class="sc">|&gt;</span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">y =</span> terms, <span class="at">fill =</span> <span class="fu">abs</span>(value))) <span class="sc">+</span></span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Significant Principle Component </span><span class="sc">\n</span><span class="st">Analysis Loadings"</span>,</span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Terms"</span>,</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Values"</span></span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(</span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="co"># center</span></span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">face =</span> <span class="st">"bold"</span>,</span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">20</span> <span class="co"># guessing this is okay for title</span></span>
+<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title.x =</span> <span class="fu">element_text</span>( <span class="co"># sets only x-axis</span></span>
+<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">15</span></span>
+<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(</span>
+<span id="cb32-31"><a href="#cb32-31" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">10</span></span>
+<span id="cb32-32"><a href="#cb32-32" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb32-33"><a href="#cb32-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title.y =</span> <span class="fu">element_text</span>( <span class="co"># sets only y-axis</span></span>
+<span id="cb32-34"><a href="#cb32-34" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">15</span></span>
+<span id="cb32-35"><a href="#cb32-35" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb32-36"><a href="#cb32-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(</span>
+<span id="cb32-37"><a href="#cb32-37" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">10</span></span>
+<span id="cb32-38"><a href="#cb32-38" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb32-39"><a href="#cb32-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.title =</span> <span class="fu">element_text</span>( <span class="co"># legend title</span></span>
+<span id="cb32-40"><a href="#cb32-40" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">20</span></span>
+<span id="cb32-41"><a href="#cb32-41" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb32-42"><a href="#cb32-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.text =</span> <span class="fu">element_text</span>( <span class="co"># Approved vs Not Approved</span></span>
+<span id="cb32-43"><a href="#cb32-43" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">16</span></span>
+<span id="cb32-44"><a href="#cb32-44" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb32-45"><a href="#cb32-45" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">+</span></span>
+<span id="cb32-46"><a href="#cb32-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">"black"</span>, <span class="at">high =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb32-47"><a href="#cb32-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(component), <span class="at">nrow =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Project_1_files/figure-html/Plotting with ggplot-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Notes :</p>
-<ul>
-<li><p>PC1</p>
-<ul>
-<li>Good hospitals are good</li>
-</ul></li>
-<li><p>PC2</p>
-<ul>
-<li><p>right = prioritize quite and clean, want their environment taken care of</p></li>
-<li><p>left = prioritizes information</p></li>
-<li><p>comfort vs information</p></li>
-</ul></li>
-<li><p>PC3</p>
-<ul>
-<li><p>right = discharge information and cleanliness</p></li>
-<li><p>left = quite and doctor communication</p></li>
-<li><p>clean vs quiet</p></li>
-</ul></li>
-<li><p>PC4</p>
-<ul>
-<li><p>right = didn’t answer all questions, just overall and recommending?</p></li>
-<li><p>left = Discharge info, medicine communication, staff responsiveness (next steps)</p></li>
-</ul></li>
-<li><p>PC5</p>
-<ul>
-<li><p>right = medicine info, doctor communication (Info from Doctor specifically)</p></li>
-<li><p>left = quiet, discharge info (want the info, but doesn’t want to be bothered)</p></li>
-</ul></li>
-<li><p>PC6</p>
-<ul>
-<li><p>right = Doctor communication, discharge information, other stuffs (talk to doctor and leave)</p></li>
-<li><p>left = staff responsiveness, nurse communication (want staff to be attentive)</p></li>
-</ul></li>
-<li><p>PC7</p>
-<ul>
-<li><p>right = care transition, medicine communication (want to know what they need to do)</p></li>
-<li><p>left = nurse communication, doctor communication, staff responsiveness (info about now vs after)</p></li>
-</ul></li>
-<li><p>PC8</p>
-<ul>
-<li><p>right = communication about medicines</p></li>
-<li><p>left = care transition</p></li>
-<li><p>medicines vs life style changes</p></li>
-</ul></li>
-<li><p>PC9</p>
-<ul>
-<li><p>right = Nurse communication</p></li>
-<li><p>left = Staff responsiveness</p></li>
-</ul></li>
-</ul>
-<p><strong>DELETE THIS, DO PRINCIPLE COMPONENT ANALYSIS</strong></p>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<section id="limitations" class="level4">
+<h4 class="anchored" data-anchor-id="limitations">Limitations</h4>
+<p>CONTEXT: Hospital admins are twitchy about this stuff and care a lot about how their hospitals are rated and the fluctuations. Question survey stuffs. Deal with fluctuations</p>
+</section>
+<section id="reflection-optional-subsection" class="level4">
+<h4 class="anchored" data-anchor-id="reflection-optional-subsection">Reflection (Optional Subsection)</h4>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

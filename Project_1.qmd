@@ -4,14 +4,23 @@ format: html
 editor: visual
 ---
 
-**YAP ABOUT THE QUESTION AND WHAT WILL BE DONE. ABSTRACT TYPE STUFF**
+## Design and Data Collection
 
-CONTEXT: Hospital admins are twitchy about this stuff and care alot about how their hospitals are reated and the fluctuations. Question survey stuffs. Deal with fluctuations
+#### Data Collection
+
+This project aims to analyze hospital survey data to determine what effects a hospital's overall rating. The hospital data that will be used was retrieved from the Centers for Medicare and Medicaid (CMS) [website](https://data.cms.gov/provider-data/dataset/dgck-syfz#data-table "CMS Website Link"){.uri}. This data was accessed on April 10th, 2025 and contains data from 2023 - 2024 from a multitude of different hospitals. This data contains 3 important metrics: star rating, answer percentage, and linear mean value. Of these metrics, the star rating is a 1-5 star rating given by the CMS as part of their initiative to make their Compare Web sites more intuitive. The answer percentage is the distribution of answers within each question. Most of the questions have "Always", "Usually", and "Sometimes or Never" as possible answers. The linear mean value is the metric that will be used for this analysis. This metric is an adjusted score accounting for patient mix, survey mode, and quarterly weighting. More details can be found [here](https://www.hcahpsonline.org/globalassets/hcahps/star-ratings/tech-notes/april_2025_star-ratings_tech_notes.pdf "CMS Technical Documentation"){.uri}.
+
+#### Design
+
+Before we create the model, we must first clean the data. Since only survey data is being considered, location data will not be included in this analysis. After isolating the linear mean values, we will fit a model using principle component analysis. Since our goal is inference, we already know we want to include all components, and we are not evaluating model predictions, we will not be creating a holdout set. After the model is created, we will look at the p-values of each component to determine how significant each component is.
+
+## Data Massaging
 
 ```{r}
 #| label: Import the dataset
 #| warning: false
 #| message: false
+#| echo: false
 
 here::i_am("Project_1.qmd")
 
@@ -29,21 +38,57 @@ hospital <- read_csv(here::here("Data/HCAHPS-Hospital.csv"), na = c("Not Applica
 
 ```
 
+Since we will not be using location data, we will remove it from our dataset.
+
 ```{r}
-#| label: Filter the dataset for relevent relevent information
+#| label: Filter the dataset for relevent information
 
 hospital <- hospital |>
   clean_names()
 
 hospital_1 <- hospital |>
   select(
-    !c("address", "city_town","telephone_number", "hcahps_answer_description") # Not Finished
+    !c("address", 
+       "city_town",
+       "telephone_number", 
+       "hcahps_answer_description", 
+       "state", 
+       "zip_code", 
+       "county_parish") # remove all location data
   )
 
 ```
 
+Because of the layout of the data, we have a lot of *missing* data in our three `metric columns`. This is the case since each entry in our `question column` is specific to a single metric.
+
 ```{r}
-#| label: Seperate the data sets
+#| label: Missing data table
+
+hospital_1_missing <- head(hospital_1) |>
+  select(hcahps_question, 
+         patient_survey_star_rating, 
+         hcahps_answer_percent, 
+         hcahps_linear_mean_value)
+
+gt(
+  hospital_1_missing,
+  rowname_col = "hcahps_question"
+) |>
+  tab_header(title = "Glimpse of Missing Data") |>
+  tab_source_note(source_note = "2024 data from Centers for Medicare & Medicaid Services") |>
+  opt_align_table_header(align = "right") |>
+  cols_label(
+    patient_survey_star_rating = "Star Rating",
+    hcahps_answer_percent = "Answer Percent",
+    hcahps_linear_mean_value = "Linear Mean Value"
+  )
+
+```
+
+To remove this *missing* data, we will separate the original data set into three different datasets. One for each of our metrics. Although we will only be using the linear mean value dataset, the formatting changes will be applied to all three datasets in order to keep the entire set of data in a like format.
+
+```{r}
+#| label: Separate the data sets
 
 hospital_star_rating <- hospital_1 |> # Star rating is a 1-5 rating of service
   select(
@@ -70,14 +115,39 @@ hospital_linear_mean <- hospital_1 |> # linear mean is a standerdization of star
   filter(
     !is.na(`hcahps_linear_mean_value`)
     )
+
 ```
+
+Now, the linear mean value data is isolated from the rest.
+
+```{r}
+#| label: Isolated linear mean value data
+
+hospital_linear_mean_partial <- head(hospital_linear_mean) |>
+  transmute(hcahps_question, 
+         hcahps_linear_mean_value
+         )
+
+gt(
+  hospital_linear_mean_partial,
+  rowname_col = "hcahps_question"
+) |>
+  tab_header(title = "Glimpse of Linear Mean Data") |>
+  tab_source_note(source_note = "2024 data from Centers for Medicare & Medicaid Services") |>
+  opt_align_table_header(align = "right") |>
+  cols_label(
+    hcahps_linear_mean_value = "Linear Mean Value"
+  )
+```
+
+However, in order to further analyze the data, we need to pivot the `question column` to create columns for each individual question.
 
 ```{r}
 #| label: Pivot the data
 
 hospital_star_rating_pivot <- hospital_star_rating |>
   pivot_wider(id_cols = `facility_id`,
-              names_from = `hcahps_measure_id`,
+              names_from = `hcahps_question`,
               values_from = `patient_survey_star_rating`) |>
   clean_names() |>
     rename_with(
@@ -86,40 +156,55 @@ hospital_star_rating_pivot <- hospital_star_rating |>
 
 hospital_ans_perc_pivot <- hospital_ans_perc |>
   pivot_wider(id_cols = `facility_id`,
-              names_from = `hcahps_measure_id`,
+              names_from = `hcahps_question`,
               values_from = `hcahps_answer_percent`) |>
-  clean_names() |>
-    rename_with(
-    \(x) str_remove(x , "_p")
-  )
+  clean_names()
 
 hospital_linear_mean_pivot <- hospital_linear_mean |>
   pivot_wider(id_cols = `facility_id`,
-              names_from = `hcahps_measure_id`,
+              names_from = `hcahps_question`,
               values_from = `hcahps_linear_mean_value`) |>
   clean_names() |>
   rename_with(
-    \(x) str_remove(x , "_linear_score")
+    \(x) str_remove(x , "_linear_mean_score")
   )
 
-hospital_linear_questions_pivot <- hospital_linear_mean |>
-  pivot_wider(id_cols = `facility_id`,
-              names_from = `hcahps_measure_id`,
-              values_from = `hcahps_question`) |>
-  clean_names() |>
-  rename_with(
-    \(x) str_remove(x , "_linear_score")
-  ) |>
-  filter(facility_id == "010001" )
-
 ```
+
+```{r}
+#| label: Linear mean value data pivoted
+
+hospital_linear_mean_pivot_partial <- head(hospital_linear_mean_pivot) |>
+  rename("Quiteness" = quietness, 
+         "Cleanliness" = cleanliness, 
+         "Nurse Communication" = nurse_communication, 
+         "Doctor Communication" = doctor_communication, 
+         "Staff Responsiveness" = staff_responsiveness, 
+         "Communication About Medicines" = communication_about_medicines,
+         "Discharge Information" = discharge_information,
+         "Care Transition" = care_transition,
+         "Overall Rating" = overall_hospital_rating,
+         "Recommend Hospital" = recommend_hospital
+         )
+
+gt(
+  head(hospital_linear_mean_pivot_partial),
+  rowname_col = "facility_id"
+) |>
+  tab_header(title = "Glimpse of Linear Mean Data Pivoted") |>
+  tab_source_note(source_note = "2024 data from Centers for Medicare & Medicaid Services") |>
+  tab_stubhead(label = "Facility ID") |>
+  opt_align_table_header(align = "left")
+```
+
+## Exploratory Data Analysis
 
 ```{r}
 #| label: Rating vs Recomend analysis
 
 ggplot(
   data = hospital_linear_mean_pivot,
-  mapping = aes(x = h_hsp_rating, y = h_recmnd)
+  mapping = aes(x = overall_hospital_rating, y = recommend_hospital)
 ) +
   geom_point()
 
@@ -130,6 +215,8 @@ There is a positive correlation between the overall hospital rating and the reco
 To analyze the data and answer our question, we will use principle component analysis.
 
 No training/test set because we are not evaluating how good the predictions are. We know the model/number of components and that everything is correlated before looking at data, so no training/test set because solely for inference.
+
+## Modeling (Optional Section)
 
 ```{r}
 #| label: Set up model and begin workflow
@@ -144,11 +231,11 @@ linear_wflow <- workflow() |>
 #| label: Create recipe and commit to workflow
 
 pca_recipe <- recipe(
-  h_recmnd ~ . , data = hospital_linear_mean_pivot
+  recommend_hospital ~ . , data = hospital_linear_mean_pivot
 ) |>
 ## ~ . indicates to use all variables in the dataset as predictors besides the response
   update_role(facility_id, new_role = "id") |>
-  step_rm(h_hsp_rating) |>
+  step_rm(overall_hospital_rating) |>
   step_normalize(all_numeric_predictors()) |>
   step_dummy(all_nominal_predictors()) |>
   step_pca(all_predictors(), num_comp = 8)
@@ -174,12 +261,15 @@ tidy(linear_fit)
 # Note the html-table-processing: none option in the chunk options
 # The table doesn't display with the default striping in RStudio
 # But Rendering to HTML adds it back in unless you tell it not to
+linear_fit_tibble <- tidy(linear_fit) |>
+  arrange(p.value)
+
 gt(
-  tidy(linear_fit),
+  linear_fit_tibble,
   rowname_col = "term"
 ) |>
   tab_header(title = "Significance of Components") |>
-  tab_source_note(source_note = "XXXXXXX") |>
+  tab_source_note(source_note = "2024 data from Centers for Medicare & Medicaid Services") |>
   opt_align_table_header(align = "right") |>
   tab_style(
     style = list(
@@ -222,79 +312,66 @@ pca_baked <- pca_prep |>
 #| label: Extract loadings
 
 pca_tidy <- tidy(pca_prep, 4, type = "coef") # tidy step 4 - the PCA step
+pca_tidy
 ```
 
 ```{r}
 #| label: Plotting with ggplot
 
 pca_tidy |>
-  filter(component %in% c("PC1", "PC2", "PC5", "PC7")) |>
+  filter(!(component %in% c("PC3"))) |>
+  mutate(terms = recode(terms, 
+                        quiteness = "Quietness", 
+                        cleanliness = "Cleanliness", 
+                        nurse_communication = "Nurse Communication", 
+                        doctor_communication = "Doctor Communication", 
+                        staff_responsiveness = "Staff Responsivness", 
+                        communication_about_medicines = "Communication About Medicines",
+                        discharge_information = "Discharge Information",
+                        care_transition = "Care Transition"
+                        )) |>
   ggplot(aes(x = value, y = terms, fill = abs(value))) +
   geom_col() +
-  theme(legend.position = "none") +
+  labs(
+    title = "Significant Principle Component \nAnalysis Loadings",
+    y = "Terms",
+    x = "Values"
+  ) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(
+      hjust = 0.5, # center
+      face = "bold",
+      size = 20 # guessing this is okay for title
+    ),
+    axis.title.x = element_text( # sets only x-axis
+      size = 15
+    ),
+    axis.text.x = element_text(
+      size = 10
+    ),
+    axis.title.y = element_text( # sets only y-axis
+      size = 15
+    ),
+    axis.text.y = element_text(
+      size = 10
+    ),
+    legend.title = element_text( # legend title
+      size = 20
+    ),
+    legend.text = element_text( # Approved vs Not Approved
+      size = 16
+    )
+        ) +
   scale_fill_gradient(low = "black", high = "red") +
-  facet_wrap(vars(component))
+  facet_wrap(vars(component), nrow = 2)
 
 ```
 
-Notes :
+## Conclusion
 
--   PC1
+#### Limitations
 
-    -   Good hospitals are good
+CONTEXT: Hospital admins are twitchy about this stuff and care a lot about how their hospitals are rated and the fluctuations. Question survey stuffs. Deal with fluctuations
 
--   PC2
-
-    -   right = prioritize quite and clean, want their environment taken care of
-
-    -   left = prioritizes information
-
-    -   comfort vs information
-
--   PC3
-
-    -   right = discharge information and cleanliness
-
-    -   left = quite and doctor communication
-
-    -   clean vs quiet
-
--   PC4
-
-    -   right = didn't answer all questions, just overall and recommending?
-
-    -   left = Discharge info, medicine communication, staff responsiveness (next steps)
-
--   PC5
-
-    -   right = medicine info, doctor communication (Info from Doctor specifically)
-
-    -   left = quiet, discharge info (want the info, but doesn't want to be bothered)
-
--   PC6
-
-    -   right = Doctor communication, discharge information, other stuffs (talk to doctor and leave)
-
-    -   left = staff responsiveness, nurse communication (want staff to be attentive)
-
--   PC7
-
-    -   right = care transition, medicine communication (want to know what they need to do)
-
-    -   left = nurse communication, doctor communication, staff responsiveness (info about now vs after)
-
--   PC8
-
-    -   right = communication about medicines
-
-    -   left = care transition
-
-    -   medicines vs life style changes
-
--   PC9
-
-    -   right = Nurse communication
-
-    -   left = Staff responsiveness
-
-**DELETE THIS, DO PRINCIPLE COMPONENT ANALYSIS**
+#### Reflection (Optional Subsection)
