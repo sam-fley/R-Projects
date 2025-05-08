@@ -51,7 +51,7 @@ hospital_1 <- hospital |>
     !c("address", 
        "city_town",
        "telephone_number", 
-       "hcahps_answer_description", 
+       "hcahps_answer_description",
        "state", 
        "zip_code", 
        "county_parish") # remove all location data
@@ -85,7 +85,7 @@ gt(
 
 ```
 
-To remove this *missing* data, we will separate the original data set into three different datasets. One for each of our metrics. Although we will only be using the linear mean value dataset, the formatting changes will be applied to all three datasets in order to keep the entire set of data in a like format.
+To remove this *missing* data, we will separate the original data set into three different datasets. One for each of our metrics. Although we will only be using the linear mean value dataset, the formatting changes will be applied to all three datasets in order to keep the entire set of data in a similar format.
 
 ```{r}
 #| label: Separate the data sets
@@ -138,6 +138,7 @@ gt(
   cols_label(
     hcahps_linear_mean_value = "Linear Mean Value"
   )
+
 ```
 
 However, in order to further analyze the data, we need to pivot the `question column` to create columns for each individual question.
@@ -154,11 +155,13 @@ hospital_star_rating_pivot <- hospital_star_rating |>
     \(x) str_remove(x , "_star_rating")
   )
 
+
 hospital_ans_perc_pivot <- hospital_ans_perc |>
   pivot_wider(id_cols = `facility_id`,
               names_from = `hcahps_question`,
               values_from = `hcahps_answer_percent`) |>
   clean_names()
+
 
 hospital_linear_mean_pivot <- hospital_linear_mean |>
   pivot_wider(id_cols = `facility_id`,
@@ -174,7 +177,6 @@ hospital_linear_mean_pivot <- hospital_linear_mean |>
 ```{r}
 #| label: Linear mean value data pivoted
 #| html-table-processing: none 
-#| fig-cap: Pivoted linear mean value data
 #| fig-alt: "A table showing a glimpse of the pivoted linear mean value data."
 
 hospital_linear_mean_pivot_partial <- head(hospital_linear_mean_pivot) |>
@@ -202,11 +204,11 @@ gt(
 
 ## Exploratory Data Analysis
 
-There are two metrics that can determine a hospitals quality, overall rating and recommendation score. On the survey, individuals were asked to provide an overall rating of the hospital, and a score on how likely they would recommend the hospital. We would like to use the recommendation score as our indicator of quality since it offers a more personalized and nuanced information. We first need to verify that these to metrics are comparable.
+There are two metrics that can determine a hospitals quality, overall rating and recommendation score. On the survey, individuals were asked to provide an overall rating of the hospital, and a score on how likely they would recommend the hospital. We will use the recommendation score as our indicator of quality since it offers more personalized and nuanced information, but first we need to verify that these to metrics are comparable.
 
 ```{r}
 #| label: Rating vs Recomend analysis
-#| fig-cap: Overall Rating vs Recommendation Score
+#| message: false
 #| fig-alt: "A plot showing overall hospital rating on the horizontal axis and recommendation score on the vertical axis. Details explained in the text below."
 
 ggplot(
@@ -295,7 +297,6 @@ Now that we have our fitted model, we can take a look at our p-values. We will c
 ```{r}
 #| label: Table of coefficients
 #| html-table-processing: none 
-#| fig-cap: Table of Coefficients
 #| fig-alt: "A table showing p-values and coefficients. Details explained in the text below."
 
 linear_fit_tibble <- tidy(linear_fit) |>
@@ -332,7 +333,7 @@ gt(
 
 As shown in the table, every component except for component number 3 is significant with a p-value less than 0.01. Now that we know which components significantly affect recommendation scores, we now need to find what each component represents.
 
-#### principal Component Analysis
+#### Principal Component Analysis
 
 ```{r}
 #| label: Using pca for inference
@@ -347,7 +348,7 @@ pca_tidy <- tidy(pca_prep, 4, type = "coef") # tidy step 4 - the PCA step
 
 ```
 
-Now that we have the loadings for our component analysis, we can create a graph and interpret each components meaning.
+Now that we have the loadings for our component analysis, we can create a graph and interpret each component's meaning.
 
 ```{r}
 #| label: Plotting with ggplot
@@ -355,7 +356,7 @@ Now that we have the loadings for our component analysis, we can create a graph 
 pca_tidy |>
   filter(!(component %in% c("PC3"))) |>
   mutate(terms = recode(terms, 
-                        quiteness = "Quietness", 
+                        Quiteness = "Quietness", 
                         cleanliness = "Cleanliness", 
                         nurse_communication = "Nurse Communication", 
                         doctor_communication = "Doctor Communication", 
@@ -367,7 +368,7 @@ pca_tidy |>
   ggplot(aes(x = value, y = terms, fill = abs(value))) +
   geom_col() +
   labs(
-    title = "Significant principal Component \nAnalysis Loadings",
+    title = "Significant Principal Component \nAnalysis Loadings",
     y = "Terms",
     x = "Values"
   ) +
@@ -406,18 +407,18 @@ Now that we have the graphs of each component, we can interpret their meaning.
 
 | Component             | Interpretation                                                                                       |
 |-----------------------|------------------------------------------------------------------------------------------------------|
-| principal Component 1 | Highly rated                                                                                         |
-| principal Component 2 | Quiet and clean vs discharge information                                                             |
-| principal Component 4 | Doctor communication vs quiteness and discharge information                                          |
-| principal Component 5 | Doctor communication, discharge information, and care transition vs Staff responsiveness             |
-| principal Component 6 | Staff responsiveness, nurse communication, and doctor communication vs communication about medicines |
-| principal Component 7 | Care transition vs doctor communication and discharge information                                    |
-| principal Component 8 | Staff responsiveness and care transition vs nurse communication                                      |
+| Principal Component 1 | Highly rated                                                                                         |
+| Principal Component 2 | Quiet and clean vs discharge information                                                             |
+| Principal Component 4 | Doctor communication vs quiteness and discharge information                                          |
+| Principal Component 5 | Doctor communication, discharge information, and care transition vs Staff responsiveness             |
+| Principal Component 6 | Staff responsiveness, nurse communication, and doctor communication vs communication about medicines |
+| Principal Component 7 | Care transition vs doctor communication and discharge information                                    |
+| Principal Component 8 | Staff responsiveness and care transition vs nurse communication                                      |
 
 ## Conclusion
 
-Our analysis has shown us that these are the factors that contribute to a change in a hospitals recommendation score. For example, if all other components are held constant, a change in principal component 2 will significantly affect a hospitals recommendation score. It is important to note that each subsequent component accounts for less of the overall variance between hospitals. This means that in descending order, when accurately interpreted, principal component 1 will affect the recommendation score the most, and principal component 8 will affect it the least. This analysis provides insights on what people value from hospitals, and what hospitals can do to provide better care.
+Our analysis has shown us that these are the factors that contribute to a change in a hospitals recommendation score. For example, if all other components are held constant, a change in principal component 2 will significantly affect a hospitals recommendation score. It is important to note that each subsequent component accounts for less of the overall variance between hospitals. This means that in descending order, when accurately interpreted, principal component 1 will account for fluctuation in the recommendation score the most, and principal component 8 will account for it the least. This analysis provides insights on what people value from hospitals, and what hospitals can do to provide better care.
 
 #### Limitations
 
-There are a few limitations and ethical concerns that should be mentioned about these findings. These insights should not be used as a means of justification for hospitals to de-prioritze certain aspects in hopes of a better recommendation score. Not only would this be ineffective considering principle component 1, it would have the potential to actively harm individuals. Another thing to consider is the reliability of the data. Hospital admins generally care a lot about how their hospital is rated. So much so, that some hospitals might not report accurate data. While the data from the Centers for Medicare and Medicaid should be reliable, it is important to note the possibility of data tampering.
+There are a few limitations and ethical concerns that should be mentioned. These insights should not be used as a means of justification for hospitals to de-prioritze certain aspects of care in hopes of a better recommendation score. Not only would this be ineffective considering principle component 1, it would also have the potential to actively harm individuals. Another thing to consider is the reliability of the data. Hospital admins generally care a lot about how their hospital is rated. So much so, that some hospitals might not report accurate data. While the data from the Centers for Medicare and Medicaid should be reliable, it is important to note the possibility of data tampering.
