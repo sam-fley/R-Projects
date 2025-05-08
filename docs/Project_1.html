@@ -138,7 +138,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#design-and-data-collection" id="toc-design-and-data-collection" class="nav-link active" data-scroll-target="#design-and-data-collection">Design and Data Collection</a></li>
   <li><a href="#data-massaging" id="toc-data-massaging" class="nav-link" data-scroll-target="#data-massaging">Data Massaging</a></li>
   <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis">Exploratory Data Analysis</a></li>
-  <li><a href="#modeling-optional-section" id="toc-modeling-optional-section" class="nav-link" data-scroll-target="#modeling-optional-section">Modeling (Optional Section)</a></li>
+  <li><a href="#modeling" id="toc-modeling" class="nav-link" data-scroll-target="#modeling">Modeling</a></li>
   <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
   </ul>
 </nav>
@@ -167,11 +167,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="design-and-data-collection">Design and Data Collection</h2>
 <section id="data-collection" class="level4">
 <h4 class="anchored" data-anchor-id="data-collection">Data Collection</h4>
-<p>This project aims to analyze hospital survey data to determine what effects a hospital’s overall rating. The hospital data that will be used was retrieved from the Centers for Medicare and Medicaid (CMS) <a href="https://data.cms.gov/provider-data/dataset/dgck-syfz#data-table" class="uri" title="CMS Website Link">website</a>. This data was accessed on April 10th, 2025 and contains data from 2023 - 2024 from a multitude of different hospitals. This data contains 3 important metrics: star rating, answer percentage, and linear mean value. Of these metrics, the star rating is a 1-5 star rating given by the CMS as part of their initiative to make their Compare Web sites more intuitive. The answer percentage is the distribution of answers within each question. Most of the questions have “Always”, “Usually”, and “Sometimes or Never” as possible answers. The linear mean value is the metric that will be used for this analysis. This metric is an adjusted score accounting for patient mix, survey mode, and quarterly weighting. More details can be found <a href="https://www.hcahpsonline.org/globalassets/hcahps/star-ratings/tech-notes/april_2025_star-ratings_tech_notes.pdf" class="uri" title="CMS Technical Documentation">here</a>.</p>
+<p>This project aims to analyze hospital survey data to determine what effects a hospital’s quality. The hospital data that will be used was retrieved from the Centers for Medicare and Medicaid (CMS) <a href="https://data.cms.gov/provider-data/dataset/dgck-syfz#data-table" class="uri" title="CMS Website Link">website</a>. This data was accessed on April 10th, 2025 and contains data from 2023 - 2024 from a multitude of different hospitals. This data contains 3 important metrics: star rating, answer percentage, and linear mean value. Of these metrics, the star rating is a 1-5 star rating given by the CMS as part of their initiative to make their Compare Web sites more intuitive. The answer percentage is the distribution of answers within each question. Most of the questions have “Always”, “Usually”, and “Sometimes or Never” as possible answers. The linear mean value is the metric that will be used for this analysis. This metric is an adjusted score accounting for patient mix, survey mode, and quarterly weighting. More details can be found <a href="https://www.hcahpsonline.org/globalassets/hcahps/star-ratings/tech-notes/april_2025_star-ratings_tech_notes.pdf" class="uri" title="CMS Technical Documentation">here</a>.</p>
 </section>
 <section id="design" class="level4">
 <h4 class="anchored" data-anchor-id="design">Design</h4>
-<p>Before we create the model, we must first clean the data. Since only survey data is being considered, location data will not be included in this analysis. After isolating the linear mean values, we will fit a model using principle component analysis. Since our goal is inference, we already know we want to include all components, and we are not evaluating model predictions, we will not be creating a holdout set. After the model is created, we will look at the p-values of each component to determine how significant each component is.</p>
+<p>Before we create the model, we must first clean the data. Since only survey data is being considered, location data will not be included in this analysis. After isolating the linear mean values, we will fit a model using principal component analysis. Since our goal is inference, we already know we want to include all components, and we are not evaluating model predictions, we will not be creating a holdout set. After the model is created, we will look at the p-values of each component to determine how significant each component is.</p>
 </section>
 </section>
 <section id="data-massaging" class="level2">
@@ -214,23 +214,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
-<div id="mzrfakrksy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#mzrfakrksy table {
+<div id="xopepkvxyg" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#xopepkvxyg table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#mzrfakrksy thead, #mzrfakrksy tbody, #mzrfakrksy tfoot, #mzrfakrksy tr, #mzrfakrksy td, #mzrfakrksy th {
+#xopepkvxyg thead, #xopepkvxyg tbody, #xopepkvxyg tfoot, #xopepkvxyg tr, #xopepkvxyg td, #xopepkvxyg th {
   border-style: none;
 }
 
-#mzrfakrksy p {
+#xopepkvxyg p {
   margin: 0;
   padding: 0;
 }
 
-#mzrfakrksy .gt_table {
+#xopepkvxyg .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -256,12 +256,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-left-color: #D3D3D3;
 }
 
-#mzrfakrksy .gt_caption {
+#xopepkvxyg .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#mzrfakrksy .gt_title {
+#xopepkvxyg .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -273,7 +273,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 0;
 }
 
-#mzrfakrksy .gt_subtitle {
+#xopepkvxyg .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -285,7 +285,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-width: 0;
 }
 
-#mzrfakrksy .gt_heading {
+#xopepkvxyg .gt_heading {
   background-color: #FFFFFF;
   text-align: right;
   border-bottom-color: #FFFFFF;
@@ -297,13 +297,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#mzrfakrksy .gt_bottom_border {
+#xopepkvxyg .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#mzrfakrksy .gt_col_headings {
+#xopepkvxyg .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -318,7 +318,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#mzrfakrksy .gt_col_heading {
+#xopepkvxyg .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -338,7 +338,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   overflow-x: hidden;
 }
 
-#mzrfakrksy .gt_column_spanner_outer {
+#xopepkvxyg .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -350,15 +350,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 4px;
 }
 
-#mzrfakrksy .gt_column_spanner_outer:first-child {
+#xopepkvxyg .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#mzrfakrksy .gt_column_spanner_outer:last-child {
+#xopepkvxyg .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#mzrfakrksy .gt_column_spanner {
+#xopepkvxyg .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -370,11 +370,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   width: 100%;
 }
 
-#mzrfakrksy .gt_spanner_row {
+#xopepkvxyg .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#mzrfakrksy .gt_group_heading {
+#xopepkvxyg .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -400,7 +400,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   text-align: left;
 }
 
-#mzrfakrksy .gt_empty_group_heading {
+#xopepkvxyg .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -415,15 +415,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
 }
 
-#mzrfakrksy .gt_from_md > :first-child {
+#xopepkvxyg .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#mzrfakrksy .gt_from_md > :last-child {
+#xopepkvxyg .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#mzrfakrksy .gt_row {
+#xopepkvxyg .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -442,7 +442,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   overflow-x: hidden;
 }
 
-#mzrfakrksy .gt_stub {
+#xopepkvxyg .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -455,7 +455,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#mzrfakrksy .gt_stub_row_group {
+#xopepkvxyg .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -469,15 +469,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: top;
 }
 
-#mzrfakrksy .gt_row_group_first td {
+#xopepkvxyg .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#mzrfakrksy .gt_row_group_first th {
+#xopepkvxyg .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#mzrfakrksy .gt_summary_row {
+#xopepkvxyg .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -487,16 +487,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#mzrfakrksy .gt_first_summary_row {
+#xopepkvxyg .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#mzrfakrksy .gt_first_summary_row.thick {
+#xopepkvxyg .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#mzrfakrksy .gt_last_summary_row {
+#xopepkvxyg .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -506,7 +506,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#mzrfakrksy .gt_grand_summary_row {
+#xopepkvxyg .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -516,7 +516,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#mzrfakrksy .gt_first_grand_summary_row {
+#xopepkvxyg .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -526,7 +526,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-color: #D3D3D3;
 }
 
-#mzrfakrksy .gt_last_grand_summary_row_top {
+#xopepkvxyg .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -536,11 +536,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#mzrfakrksy .gt_striped {
+#xopepkvxyg .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#mzrfakrksy .gt_table_body {
+#xopepkvxyg .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -549,7 +549,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#mzrfakrksy .gt_footnotes {
+#xopepkvxyg .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -563,7 +563,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#mzrfakrksy .gt_footnote {
+#xopepkvxyg .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -572,7 +572,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#mzrfakrksy .gt_sourcenotes {
+#xopepkvxyg .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -586,7 +586,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#mzrfakrksy .gt_sourcenote {
+#xopepkvxyg .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -594,72 +594,72 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#mzrfakrksy .gt_left {
+#xopepkvxyg .gt_left {
   text-align: left;
 }
 
-#mzrfakrksy .gt_center {
+#xopepkvxyg .gt_center {
   text-align: center;
 }
 
-#mzrfakrksy .gt_right {
+#xopepkvxyg .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#mzrfakrksy .gt_font_normal {
+#xopepkvxyg .gt_font_normal {
   font-weight: normal;
 }
 
-#mzrfakrksy .gt_font_bold {
+#xopepkvxyg .gt_font_bold {
   font-weight: bold;
 }
 
-#mzrfakrksy .gt_font_italic {
+#xopepkvxyg .gt_font_italic {
   font-style: italic;
 }
 
-#mzrfakrksy .gt_super {
+#xopepkvxyg .gt_super {
   font-size: 65%;
 }
 
-#mzrfakrksy .gt_footnote_marks {
+#xopepkvxyg .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#mzrfakrksy .gt_asterisk {
+#xopepkvxyg .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#mzrfakrksy .gt_indent_1 {
+#xopepkvxyg .gt_indent_1 {
   text-indent: 5px;
 }
 
-#mzrfakrksy .gt_indent_2 {
+#xopepkvxyg .gt_indent_2 {
   text-indent: 10px;
 }
 
-#mzrfakrksy .gt_indent_3 {
+#xopepkvxyg .gt_indent_3 {
   text-indent: 15px;
 }
 
-#mzrfakrksy .gt_indent_4 {
+#xopepkvxyg .gt_indent_4 {
   text-indent: 20px;
 }
 
-#mzrfakrksy .gt_indent_5 {
+#xopepkvxyg .gt_indent_5 {
   text-indent: 25px;
 }
 
-#mzrfakrksy .katex-display {
+#xopepkvxyg .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#mzrfakrksy div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#xopepkvxyg div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -759,23 +759,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
-<div id="scdlxcvdff" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#scdlxcvdff table {
+<div id="hubbfhcyvg" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#hubbfhcyvg table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#scdlxcvdff thead, #scdlxcvdff tbody, #scdlxcvdff tfoot, #scdlxcvdff tr, #scdlxcvdff td, #scdlxcvdff th {
+#hubbfhcyvg thead, #hubbfhcyvg tbody, #hubbfhcyvg tfoot, #hubbfhcyvg tr, #hubbfhcyvg td, #hubbfhcyvg th {
   border-style: none;
 }
 
-#scdlxcvdff p {
+#hubbfhcyvg p {
   margin: 0;
   padding: 0;
 }
 
-#scdlxcvdff .gt_table {
+#hubbfhcyvg .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -801,12 +801,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-left-color: #D3D3D3;
 }
 
-#scdlxcvdff .gt_caption {
+#hubbfhcyvg .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#scdlxcvdff .gt_title {
+#hubbfhcyvg .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -818,7 +818,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 0;
 }
 
-#scdlxcvdff .gt_subtitle {
+#hubbfhcyvg .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -830,7 +830,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-width: 0;
 }
 
-#scdlxcvdff .gt_heading {
+#hubbfhcyvg .gt_heading {
   background-color: #FFFFFF;
   text-align: right;
   border-bottom-color: #FFFFFF;
@@ -842,13 +842,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#scdlxcvdff .gt_bottom_border {
+#hubbfhcyvg .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#scdlxcvdff .gt_col_headings {
+#hubbfhcyvg .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -863,7 +863,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#scdlxcvdff .gt_col_heading {
+#hubbfhcyvg .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -883,7 +883,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   overflow-x: hidden;
 }
 
-#scdlxcvdff .gt_column_spanner_outer {
+#hubbfhcyvg .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -895,15 +895,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 4px;
 }
 
-#scdlxcvdff .gt_column_spanner_outer:first-child {
+#hubbfhcyvg .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#scdlxcvdff .gt_column_spanner_outer:last-child {
+#hubbfhcyvg .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#scdlxcvdff .gt_column_spanner {
+#hubbfhcyvg .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -915,11 +915,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   width: 100%;
 }
 
-#scdlxcvdff .gt_spanner_row {
+#hubbfhcyvg .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#scdlxcvdff .gt_group_heading {
+#hubbfhcyvg .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -945,7 +945,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   text-align: left;
 }
 
-#scdlxcvdff .gt_empty_group_heading {
+#hubbfhcyvg .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -960,15 +960,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
 }
 
-#scdlxcvdff .gt_from_md > :first-child {
+#hubbfhcyvg .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#scdlxcvdff .gt_from_md > :last-child {
+#hubbfhcyvg .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#scdlxcvdff .gt_row {
+#hubbfhcyvg .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -987,7 +987,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   overflow-x: hidden;
 }
 
-#scdlxcvdff .gt_stub {
+#hubbfhcyvg .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1000,7 +1000,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#scdlxcvdff .gt_stub_row_group {
+#hubbfhcyvg .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1014,15 +1014,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: top;
 }
 
-#scdlxcvdff .gt_row_group_first td {
+#hubbfhcyvg .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#scdlxcvdff .gt_row_group_first th {
+#hubbfhcyvg .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#scdlxcvdff .gt_summary_row {
+#hubbfhcyvg .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1032,16 +1032,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#scdlxcvdff .gt_first_summary_row {
+#hubbfhcyvg .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#scdlxcvdff .gt_first_summary_row.thick {
+#hubbfhcyvg .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#scdlxcvdff .gt_last_summary_row {
+#hubbfhcyvg .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1051,7 +1051,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#scdlxcvdff .gt_grand_summary_row {
+#hubbfhcyvg .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1061,7 +1061,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#scdlxcvdff .gt_first_grand_summary_row {
+#hubbfhcyvg .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1071,7 +1071,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-color: #D3D3D3;
 }
 
-#scdlxcvdff .gt_last_grand_summary_row_top {
+#hubbfhcyvg .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1081,11 +1081,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#scdlxcvdff .gt_striped {
+#hubbfhcyvg .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#scdlxcvdff .gt_table_body {
+#hubbfhcyvg .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1094,7 +1094,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#scdlxcvdff .gt_footnotes {
+#hubbfhcyvg .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1108,7 +1108,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#scdlxcvdff .gt_footnote {
+#hubbfhcyvg .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1117,7 +1117,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#scdlxcvdff .gt_sourcenotes {
+#hubbfhcyvg .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1131,7 +1131,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#scdlxcvdff .gt_sourcenote {
+#hubbfhcyvg .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1139,72 +1139,72 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#scdlxcvdff .gt_left {
+#hubbfhcyvg .gt_left {
   text-align: left;
 }
 
-#scdlxcvdff .gt_center {
+#hubbfhcyvg .gt_center {
   text-align: center;
 }
 
-#scdlxcvdff .gt_right {
+#hubbfhcyvg .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#scdlxcvdff .gt_font_normal {
+#hubbfhcyvg .gt_font_normal {
   font-weight: normal;
 }
 
-#scdlxcvdff .gt_font_bold {
+#hubbfhcyvg .gt_font_bold {
   font-weight: bold;
 }
 
-#scdlxcvdff .gt_font_italic {
+#hubbfhcyvg .gt_font_italic {
   font-style: italic;
 }
 
-#scdlxcvdff .gt_super {
+#hubbfhcyvg .gt_super {
   font-size: 65%;
 }
 
-#scdlxcvdff .gt_footnote_marks {
+#hubbfhcyvg .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#scdlxcvdff .gt_asterisk {
+#hubbfhcyvg .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#scdlxcvdff .gt_indent_1 {
+#hubbfhcyvg .gt_indent_1 {
   text-indent: 5px;
 }
 
-#scdlxcvdff .gt_indent_2 {
+#hubbfhcyvg .gt_indent_2 {
   text-indent: 10px;
 }
 
-#scdlxcvdff .gt_indent_3 {
+#hubbfhcyvg .gt_indent_3 {
   text-indent: 15px;
 }
 
-#scdlxcvdff .gt_indent_4 {
+#hubbfhcyvg .gt_indent_4 {
   text-indent: 20px;
 }
 
-#scdlxcvdff .gt_indent_5 {
+#hubbfhcyvg .gt_indent_5 {
   text-indent: 25px;
 }
 
-#scdlxcvdff .katex-display {
+#hubbfhcyvg .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#scdlxcvdff div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#hubbfhcyvg div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1269,7 +1269,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    \(x) <span class="fu">str_remove</span>(x , <span class="st">"_linear_mean_score"</span>)</span>
 <span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell">
+<div class="cell" data-html-table-processing="none">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>hospital_linear_mean_pivot_partial <span class="ot">&lt;-</span> <span class="fu">head</span>(hospital_linear_mean_pivot) <span class="sc">|&gt;</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="st">"Quiteness"</span> <span class="ot">=</span> quietness, </span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>         <span class="st">"Cleanliness"</span> <span class="ot">=</span> cleanliness, </span>
@@ -1287,29 +1287,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(hospital_linear_mean_pivot_partial),</span>
 <span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">rowname_col =</span> <span class="st">"facility_id"</span></span>
 <span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(<span class="at">title =</span> <span class="st">"Glimpse of Linear Mean Data Pivoted"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(<span class="at">title =</span> <span class="st">"Glimpse of Pivoted Linear Mean Data"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_source_note</span>(<span class="at">source_note =</span> <span class="st">"2024 data from Centers for Medicare &amp; Medicaid Services"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_stubhead</span>(<span class="at">label =</span> <span class="st">"Facility ID"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_align_table_header</span>(<span class="at">align =</span> <span class="st">"left"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
-<div id="dqgqtbsgxv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#dqgqtbsgxv table {
+<div id="tbomkllxbz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#tbomkllxbz table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#dqgqtbsgxv thead, #dqgqtbsgxv tbody, #dqgqtbsgxv tfoot, #dqgqtbsgxv tr, #dqgqtbsgxv td, #dqgqtbsgxv th {
+#tbomkllxbz thead, #tbomkllxbz tbody, #tbomkllxbz tfoot, #tbomkllxbz tr, #tbomkllxbz td, #tbomkllxbz th {
   border-style: none;
 }
 
-#dqgqtbsgxv p {
+#tbomkllxbz p {
   margin: 0;
   padding: 0;
 }
 
-#dqgqtbsgxv .gt_table {
+#tbomkllxbz .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1335,12 +1335,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-left-color: #D3D3D3;
 }
 
-#dqgqtbsgxv .gt_caption {
+#tbomkllxbz .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#dqgqtbsgxv .gt_title {
+#tbomkllxbz .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1352,7 +1352,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 0;
 }
 
-#dqgqtbsgxv .gt_subtitle {
+#tbomkllxbz .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1364,7 +1364,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-width: 0;
 }
 
-#dqgqtbsgxv .gt_heading {
+#tbomkllxbz .gt_heading {
   background-color: #FFFFFF;
   text-align: left;
   border-bottom-color: #FFFFFF;
@@ -1376,13 +1376,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#dqgqtbsgxv .gt_bottom_border {
+#tbomkllxbz .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#dqgqtbsgxv .gt_col_headings {
+#tbomkllxbz .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1397,7 +1397,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#dqgqtbsgxv .gt_col_heading {
+#tbomkllxbz .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1417,7 +1417,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   overflow-x: hidden;
 }
 
-#dqgqtbsgxv .gt_column_spanner_outer {
+#tbomkllxbz .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1429,15 +1429,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 4px;
 }
 
-#dqgqtbsgxv .gt_column_spanner_outer:first-child {
+#tbomkllxbz .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#dqgqtbsgxv .gt_column_spanner_outer:last-child {
+#tbomkllxbz .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#dqgqtbsgxv .gt_column_spanner {
+#tbomkllxbz .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1449,11 +1449,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   width: 100%;
 }
 
-#dqgqtbsgxv .gt_spanner_row {
+#tbomkllxbz .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#dqgqtbsgxv .gt_group_heading {
+#tbomkllxbz .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1479,7 +1479,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   text-align: left;
 }
 
-#dqgqtbsgxv .gt_empty_group_heading {
+#tbomkllxbz .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1494,15 +1494,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
 }
 
-#dqgqtbsgxv .gt_from_md > :first-child {
+#tbomkllxbz .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#dqgqtbsgxv .gt_from_md > :last-child {
+#tbomkllxbz .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#dqgqtbsgxv .gt_row {
+#tbomkllxbz .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1521,7 +1521,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   overflow-x: hidden;
 }
 
-#dqgqtbsgxv .gt_stub {
+#tbomkllxbz .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1534,7 +1534,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#dqgqtbsgxv .gt_stub_row_group {
+#tbomkllxbz .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1548,15 +1548,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: top;
 }
 
-#dqgqtbsgxv .gt_row_group_first td {
+#tbomkllxbz .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#dqgqtbsgxv .gt_row_group_first th {
+#tbomkllxbz .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#dqgqtbsgxv .gt_summary_row {
+#tbomkllxbz .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1566,16 +1566,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#dqgqtbsgxv .gt_first_summary_row {
+#tbomkllxbz .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#dqgqtbsgxv .gt_first_summary_row.thick {
+#tbomkllxbz .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#dqgqtbsgxv .gt_last_summary_row {
+#tbomkllxbz .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1585,7 +1585,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#dqgqtbsgxv .gt_grand_summary_row {
+#tbomkllxbz .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1595,7 +1595,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#dqgqtbsgxv .gt_first_grand_summary_row {
+#tbomkllxbz .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1605,7 +1605,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-color: #D3D3D3;
 }
 
-#dqgqtbsgxv .gt_last_grand_summary_row_top {
+#tbomkllxbz .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1615,11 +1615,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#dqgqtbsgxv .gt_striped {
+#tbomkllxbz .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#dqgqtbsgxv .gt_table_body {
+#tbomkllxbz .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1628,7 +1628,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#dqgqtbsgxv .gt_footnotes {
+#tbomkllxbz .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1642,7 +1642,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#dqgqtbsgxv .gt_footnote {
+#tbomkllxbz .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1651,7 +1651,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#dqgqtbsgxv .gt_sourcenotes {
+#tbomkllxbz .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1665,7 +1665,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#dqgqtbsgxv .gt_sourcenote {
+#tbomkllxbz .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1673,79 +1673,79 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#dqgqtbsgxv .gt_left {
+#tbomkllxbz .gt_left {
   text-align: left;
 }
 
-#dqgqtbsgxv .gt_center {
+#tbomkllxbz .gt_center {
   text-align: center;
 }
 
-#dqgqtbsgxv .gt_right {
+#tbomkllxbz .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#dqgqtbsgxv .gt_font_normal {
+#tbomkllxbz .gt_font_normal {
   font-weight: normal;
 }
 
-#dqgqtbsgxv .gt_font_bold {
+#tbomkllxbz .gt_font_bold {
   font-weight: bold;
 }
 
-#dqgqtbsgxv .gt_font_italic {
+#tbomkllxbz .gt_font_italic {
   font-style: italic;
 }
 
-#dqgqtbsgxv .gt_super {
+#tbomkllxbz .gt_super {
   font-size: 65%;
 }
 
-#dqgqtbsgxv .gt_footnote_marks {
+#tbomkllxbz .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#dqgqtbsgxv .gt_asterisk {
+#tbomkllxbz .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#dqgqtbsgxv .gt_indent_1 {
+#tbomkllxbz .gt_indent_1 {
   text-indent: 5px;
 }
 
-#dqgqtbsgxv .gt_indent_2 {
+#tbomkllxbz .gt_indent_2 {
   text-indent: 10px;
 }
 
-#dqgqtbsgxv .gt_indent_3 {
+#tbomkllxbz .gt_indent_3 {
   text-indent: 15px;
 }
 
-#dqgqtbsgxv .gt_indent_4 {
+#tbomkllxbz .gt_indent_4 {
   text-indent: 20px;
 }
 
-#dqgqtbsgxv .gt_indent_5 {
+#tbomkllxbz .gt_indent_5 {
   text-indent: 25px;
 }
 
-#dqgqtbsgxv .katex-display {
+#tbomkllxbz .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#dqgqtbsgxv div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#tbomkllxbz div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
   <thead>
     <tr class="gt_heading">
-      <td colspan="11" class="gt_heading gt_title gt_font_normal gt_bottom_border" style="">Glimpse of Linear Mean Data Pivoted</td>
+      <td colspan="11" class="gt_heading gt_title gt_font_normal gt_bottom_border" style="">Glimpse of Pivoted Linear Mean Data</td>
     </tr>
     
     <tr class="gt_col_headings">
@@ -1838,122 +1838,141 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   
 </table>
 </div>
+<p>Pivoted linear mean value data</p>
 </div>
 </div>
 </section>
 <section id="exploratory-data-analysis" class="level2">
 <h2 class="anchored" data-anchor-id="exploratory-data-analysis">Exploratory Data Analysis</h2>
+<p>There are two metrics that can determine a hospitals quality, overall rating and recommendation score. On the survey, individuals were asked to provide an overall rating of the hospital, and a score on how likely they would recommend the hospital. We would like to use the recommendation score as our indicator of quality since it offers a more personalized and nuanced information. We first need to verify that these to metrics are comparable.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> hospital_linear_mean_pivot,</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> overall_hospital_rating, <span class="at">y =</span> recommend_hospital)</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Hostpital Ratings (2024)"</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Overall Hospital Rating"</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Recommendation Score"</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="co"># center</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">face =</span> <span class="st">"bold"</span>,</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">20</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title.x =</span> <span class="fu">element_text</span>( <span class="co"># sets only x-axis</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">15</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">10</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title.y =</span> <span class="fu">element_text</span>( <span class="co"># sets only y-axis</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">15</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">10</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">+</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
 <div class="cell-output-display">
-<p><img src="Project_1_files/figure-html/Rating vs Recomend analysis-1.png" class="img-fluid" width="672"></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Project_1_files/figure-html/Rating vs Recomend analysis-1.png" class="img-fluid figure-img" alt="A plot showing overall hospital rating on the horizontal axis and recommendation score on the vertical axis. Details explained in the text below." width="672"></p>
+<figcaption class="figure-caption">Overall Rating vs Recommendation Score</figcaption>
+</figure>
 </div>
 </div>
-<p>There is a positive correlation between the overall hospital rating and the recommendation likelihood. This makes sense since a hospital with a higher rating should be more likely to be recommended. We will be using the overall hospital rating as our response variable. We will judge the other variable to see how much they effect the overall hospital rating.</p>
-<p>To analyze the data and answer our question, we will use principle component analysis.</p>
-<p>No training/test set because we are not evaluating how good the predictions are. We know the model/number of components and that everything is correlated before looking at data, so no training/test set because solely for inference.</p>
+</div>
+<p>There is a positive correlation between the <code>overall hospital rating</code> and the <code>recommendation score</code>. This makes sense since a hospital with a higher rating should be more likely to be recommended. Since these metrics are comparable, we will be using the <code>recommendation score</code> as our indicator of quality.</p>
 </section>
-<section id="modeling-optional-section" class="level2">
-<h2 class="anchored" data-anchor-id="modeling-optional-section">Modeling (Optional Section)</h2>
+<section id="modeling" class="level2">
+<h2 class="anchored" data-anchor-id="modeling">Modeling</h2>
+<p>To analyze the data and answer our question, we will create an inferential model using principal component analysis. As described in our design, we will include all components and we will not evaluate model predictions. Therefore, we will not be creating a holdout set.</p>
+<section id="linear-regression" class="level4">
+<h4 class="anchored" data-anchor-id="linear-regression">Linear Regression</h4>
+<p>We start by defining the type of model we want to run, and setting up our workflow.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>linear_model <span class="ot">&lt;-</span> <span class="fu">linear_reg</span>(<span class="at">mode =</span> <span class="st">"regression"</span>, <span class="at">engine =</span> <span class="st">"lm"</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>linear_wflow <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">|&gt;</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(linear_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>linear_model <span class="ot">&lt;-</span> <span class="fu">linear_reg</span>(<span class="at">mode =</span> <span class="st">"regression"</span>, <span class="at">engine =</span> <span class="st">"lm"</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>linear_wflow <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">|&gt;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(linear_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>When setting up the component analysis, we need to remove the <code>overall hospital ratings</code>. This is necessary since we have previously shown that they are directly correlated.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>pca_recipe <span class="ot">&lt;-</span> <span class="fu">recipe</span>(</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  recommend_hospital <span class="sc">~</span> . , <span class="at">data =</span> hospital_linear_mean_pivot</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="do">## ~ . indicates to use all variables in the dataset as predictors besides the response</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update_role</span>(facility_id, <span class="at">new_role =</span> <span class="st">"id"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_rm</span>(overall_hospital_rating) <span class="sc">|&gt;</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_normalize</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">|&gt;</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">|&gt;</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_pca</span>(<span class="fu">all_predictors</span>(), <span class="at">num_comp =</span> <span class="dv">8</span>)</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>linear_wflow <span class="ot">&lt;-</span> linear_wflow <span class="sc">|&gt;</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(pca_recipe)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>pca_recipe <span class="ot">&lt;-</span> <span class="fu">recipe</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  recommend_hospital <span class="sc">~</span> . , <span class="at">data =</span> hospital_linear_mean_pivot</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="do">## ~ . indicates to use all variables in the dataset as predictors besides the response</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update_role</span>(facility_id, <span class="at">new_role =</span> <span class="st">"id"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_rm</span>(overall_hospital_rating) <span class="sc">|&gt;</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_normalize</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_pca</span>(<span class="fu">all_predictors</span>(), <span class="at">num_comp =</span> <span class="dv">8</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>linear_wflow <span class="ot">&lt;-</span> linear_wflow <span class="sc">|&gt;</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(pca_recipe)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>Next, we fit the model on our component analysis.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>linear_fit <span class="ot">&lt;-</span> <span class="fu">fit</span>(linear_wflow, <span class="at">data =</span> hospital_linear_mean_pivot)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(linear_fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 9 × 5
-  term        estimate std.error statistic   p.value
-  &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
-1 (Intercept)  86.6       0.0415  2085.    0        
-2 PC1           1.75      0.0171   102.    0        
-3 PC2           0.516     0.0530     9.74  4.26e- 22
-4 PC3          -0.0430    0.0563    -0.763 4.45e-  1
-5 PC4          -0.322     0.0798    -4.04  5.56e-  5
-6 PC5          -1.19      0.0808   -14.8   7.64e- 48
-7 PC6          -0.761     0.102     -7.44  1.27e- 13
-8 PC7          -2.60      0.111    -23.5   2.14e-112
-9 PC8           0.375     0.139      2.70  7.03e-  3</code></pre>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>linear_fit <span class="ot">&lt;-</span> <span class="fu">fit</span>(linear_wflow, <span class="at">data =</span> hospital_linear_mean_pivot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</div>
-<ul>
-<li>Note below 0.01 can be considered significant</li>
-</ul>
+<p>Now that we have our fitted model, we can take a look at our p-values. We will consider a p-value less than 0.01 to be significant.</p>
 <div class="cell" data-html-table-processing="none">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Note the html-table-processing: none option in the chunk options</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># The table doesn't display with the default striping in RStudio</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># But Rendering to HTML adds it back in unless you tell it not to</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>linear_fit_tibble <span class="ot">&lt;-</span> <span class="fu">tidy</span>(linear_fit) <span class="sc">|&gt;</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(p.value)</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="fu">gt</span>(</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  linear_fit_tibble,</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">rowname_col =</span> <span class="st">"term"</span></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(<span class="at">title =</span> <span class="st">"Significance of Components"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_source_note</span>(<span class="at">source_note =</span> <span class="st">"2024 data from Centers for Medicare &amp; Medicaid Services"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_align_table_header</span>(<span class="at">align =</span> <span class="st">"right"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_style</span>(</span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">style =</span> <span class="fu">list</span>(</span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>      <span class="fu">cell_fill</span>(<span class="at">color =</span> <span class="st">"red"</span>, <span class="at">alpha =</span> <span class="fl">0.2</span>),</span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>      <span class="fu">cell_text</span>(<span class="at">weight =</span> <span class="st">"bold"</span>)</span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">locations =</span> <span class="fu">cells_body</span>(</span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">columns =</span> <span class="fu">c</span>(estimate, p.value),</span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">rows =</span> p.value <span class="sc">&lt;=</span> <span class="fl">1e-2</span></span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_move_to_start</span>(p.value) <span class="sc">|&gt;</span></span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">p.value =</span> <span class="st">"P Value"</span>,</span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">estimate =</span> <span class="st">"Coefficient"</span>,</span>
-<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">std.error =</span> <span class="st">"Standard Error"</span>,</span>
-<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">statistic =</span> <span class="st">"Statistic"</span></span>
-<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_scientific</span>(</span>
-<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(p.value)</span>
-<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>linear_fit_tibble <span class="ot">&lt;-</span> <span class="fu">tidy</span>(linear_fit) <span class="sc">|&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(p.value)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">gt</span>(</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  linear_fit_tibble,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">rowname_col =</span> <span class="st">"term"</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(<span class="at">title =</span> <span class="st">"Significance of Components"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_source_note</span>(<span class="at">source_note =</span> <span class="st">"2024 data from Centers for Medicare &amp; Medicaid Services"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_align_table_header</span>(<span class="at">align =</span> <span class="st">"right"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_style</span>(</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">style =</span> <span class="fu">list</span>(</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">cell_fill</span>(<span class="at">color =</span> <span class="st">"red"</span>, <span class="at">alpha =</span> <span class="fl">0.2</span>),</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>      <span class="fu">cell_text</span>(<span class="at">weight =</span> <span class="st">"bold"</span>)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">locations =</span> <span class="fu">cells_body</span>(</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">columns =</span> <span class="fu">c</span>(estimate, p.value),</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">rows =</span> p.value <span class="sc">&lt;=</span> <span class="fl">1e-2</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_move_to_start</span>(p.value) <span class="sc">|&gt;</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">p.value =</span> <span class="st">"P-Value"</span>,</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">estimate =</span> <span class="st">"Coefficient"</span>,</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">std.error =</span> <span class="st">"Standard Error"</span>,</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">statistic =</span> <span class="st">"Statistic"</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_scientific</span>(</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(p.value)</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
-<div id="tslcodwcba" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#tslcodwcba table {
+<div id="wwelzydnks" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#wwelzydnks table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#tslcodwcba thead, #tslcodwcba tbody, #tslcodwcba tfoot, #tslcodwcba tr, #tslcodwcba td, #tslcodwcba th {
+#wwelzydnks thead, #wwelzydnks tbody, #wwelzydnks tfoot, #wwelzydnks tr, #wwelzydnks td, #wwelzydnks th {
   border-style: none;
 }
 
-#tslcodwcba p {
+#wwelzydnks p {
   margin: 0;
   padding: 0;
 }
 
-#tslcodwcba .gt_table {
+#wwelzydnks .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1979,12 +1998,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-left-color: #D3D3D3;
 }
 
-#tslcodwcba .gt_caption {
+#wwelzydnks .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#tslcodwcba .gt_title {
+#wwelzydnks .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1996,7 +2015,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-width: 0;
 }
 
-#tslcodwcba .gt_subtitle {
+#wwelzydnks .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2008,7 +2027,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-width: 0;
 }
 
-#tslcodwcba .gt_heading {
+#wwelzydnks .gt_heading {
   background-color: #FFFFFF;
   text-align: right;
   border-bottom-color: #FFFFFF;
@@ -2020,13 +2039,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#tslcodwcba .gt_bottom_border {
+#wwelzydnks .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#tslcodwcba .gt_col_headings {
+#wwelzydnks .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2041,7 +2060,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#tslcodwcba .gt_col_heading {
+#wwelzydnks .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2061,7 +2080,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   overflow-x: hidden;
 }
 
-#tslcodwcba .gt_column_spanner_outer {
+#wwelzydnks .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2073,15 +2092,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 4px;
 }
 
-#tslcodwcba .gt_column_spanner_outer:first-child {
+#wwelzydnks .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#tslcodwcba .gt_column_spanner_outer:last-child {
+#wwelzydnks .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#tslcodwcba .gt_column_spanner {
+#wwelzydnks .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2093,11 +2112,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   width: 100%;
 }
 
-#tslcodwcba .gt_spanner_row {
+#wwelzydnks .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#tslcodwcba .gt_group_heading {
+#wwelzydnks .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2123,7 +2142,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   text-align: left;
 }
 
-#tslcodwcba .gt_empty_group_heading {
+#wwelzydnks .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2138,15 +2157,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: middle;
 }
 
-#tslcodwcba .gt_from_md > :first-child {
+#wwelzydnks .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#tslcodwcba .gt_from_md > :last-child {
+#wwelzydnks .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#tslcodwcba .gt_row {
+#wwelzydnks .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2165,7 +2184,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   overflow-x: hidden;
 }
 
-#tslcodwcba .gt_stub {
+#wwelzydnks .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2178,7 +2197,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#tslcodwcba .gt_stub_row_group {
+#wwelzydnks .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2192,15 +2211,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   vertical-align: top;
 }
 
-#tslcodwcba .gt_row_group_first td {
+#wwelzydnks .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#tslcodwcba .gt_row_group_first th {
+#wwelzydnks .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#tslcodwcba .gt_summary_row {
+#wwelzydnks .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2210,16 +2229,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#tslcodwcba .gt_first_summary_row {
+#wwelzydnks .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#tslcodwcba .gt_first_summary_row.thick {
+#wwelzydnks .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#tslcodwcba .gt_last_summary_row {
+#wwelzydnks .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2229,7 +2248,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#tslcodwcba .gt_grand_summary_row {
+#wwelzydnks .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2239,7 +2258,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#tslcodwcba .gt_first_grand_summary_row {
+#wwelzydnks .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2249,7 +2268,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-top-color: #D3D3D3;
 }
 
-#tslcodwcba .gt_last_grand_summary_row_top {
+#wwelzydnks .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2259,11 +2278,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#tslcodwcba .gt_striped {
+#wwelzydnks .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#tslcodwcba .gt_table_body {
+#wwelzydnks .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2272,7 +2291,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-bottom-color: #D3D3D3;
 }
 
-#tslcodwcba .gt_footnotes {
+#wwelzydnks .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2286,7 +2305,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#tslcodwcba .gt_footnote {
+#wwelzydnks .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2295,7 +2314,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#tslcodwcba .gt_sourcenotes {
+#wwelzydnks .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2309,7 +2328,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   border-right-color: #D3D3D3;
 }
 
-#tslcodwcba .gt_sourcenote {
+#wwelzydnks .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2317,72 +2336,72 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   padding-right: 5px;
 }
 
-#tslcodwcba .gt_left {
+#wwelzydnks .gt_left {
   text-align: left;
 }
 
-#tslcodwcba .gt_center {
+#wwelzydnks .gt_center {
   text-align: center;
 }
 
-#tslcodwcba .gt_right {
+#wwelzydnks .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#tslcodwcba .gt_font_normal {
+#wwelzydnks .gt_font_normal {
   font-weight: normal;
 }
 
-#tslcodwcba .gt_font_bold {
+#wwelzydnks .gt_font_bold {
   font-weight: bold;
 }
 
-#tslcodwcba .gt_font_italic {
+#wwelzydnks .gt_font_italic {
   font-style: italic;
 }
 
-#tslcodwcba .gt_super {
+#wwelzydnks .gt_super {
   font-size: 65%;
 }
 
-#tslcodwcba .gt_footnote_marks {
+#wwelzydnks .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#tslcodwcba .gt_asterisk {
+#wwelzydnks .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#tslcodwcba .gt_indent_1 {
+#wwelzydnks .gt_indent_1 {
   text-indent: 5px;
 }
 
-#tslcodwcba .gt_indent_2 {
+#wwelzydnks .gt_indent_2 {
   text-indent: 10px;
 }
 
-#tslcodwcba .gt_indent_3 {
+#wwelzydnks .gt_indent_3 {
   text-indent: 15px;
 }
 
-#tslcodwcba .gt_indent_4 {
+#wwelzydnks .gt_indent_4 {
   text-indent: 20px;
 }
 
-#tslcodwcba .gt_indent_5 {
+#wwelzydnks .gt_indent_5 {
   text-indent: 25px;
 }
 
-#tslcodwcba .katex-display {
+#wwelzydnks .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#tslcodwcba div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#wwelzydnks div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -2394,7 +2413,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     
     <tr class="gt_col_headings">
       <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="a::stub"></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="p.value">P Value</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="p.value">P-Value</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="estimate">Coefficient</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="std.error">Standard Error</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="statistic">Statistic</th>
@@ -2455,145 +2474,127 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   
 </table>
 </div>
+<p>Table of Coefficients</p>
 </div>
 </div>
+<p>As shown in the table, every component except for component number 3 is significant with a p-value less than 0.01. Now that we know which components significantly affect recommendation scores, we now need to find what each component represents.</p>
+</section>
+<section id="principal-component-analysis" class="level4">
+<h4 class="anchored" data-anchor-id="principal-component-analysis">principal Component Analysis</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>pca_prep <span class="ot">&lt;-</span> pca_recipe <span class="sc">|&gt;</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prep</span>()</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>pca_prep</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code></code></pre>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>pca_baked <span class="ot">&lt;-</span> pca_prep <span class="sc">|&gt;</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bake</span>(<span class="at">new_data =</span> <span class="cn">NULL</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>pca_tidy <span class="ot">&lt;-</span> <span class="fu">tidy</span>(pca_prep, <span class="dv">4</span>, <span class="at">type =</span> <span class="st">"coef"</span>) <span class="co"># tidy step 4 - the PCA step</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Recipe ──────────────────────────────────────────────────────────────────────</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code></code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Inputs </code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Number of variables by role</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>outcome:   1
-predictor: 9
-id:        1</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code></code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Training information </code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Training data contained 3197 data points and no incomplete rows.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code></code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Operations </code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>• Variables removed: overall_hospital_rating | Trained</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>• Centering and scaling for: nurse_communication, ... | Trained</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>• Dummy variables from: &lt;none&gt; | Trained</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>• PCA extraction with: nurse_communication, ... | Trained</code></pre>
-</div>
-</div>
+<p>Now that we have the loadings for our component analysis, we can create a graph and interpret each components meaning.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>pca_baked <span class="ot">&lt;-</span> pca_prep <span class="sc">|&gt;</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bake</span>(<span class="at">new_data =</span> <span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>pca_tidy <span class="ot">&lt;-</span> <span class="fu">tidy</span>(pca_prep, <span class="dv">4</span>, <span class="at">type =</span> <span class="st">"coef"</span>) <span class="co"># tidy step 4 - the PCA step</span></span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>pca_tidy</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 64 × 4
-   terms                         value component id       
-   &lt;chr&gt;                         &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;    
- 1 nurse_communication           0.389 PC1       pca_f9Ms4
- 2 doctor_communication          0.363 PC1       pca_f9Ms4
- 3 staff_responsiveness          0.374 PC1       pca_f9Ms4
- 4 communication_about_medicines 0.379 PC1       pca_f9Ms4
- 5 discharge_information         0.339 PC1       pca_f9Ms4
- 6 care_transition               0.380 PC1       pca_f9Ms4
- 7 cleanliness                   0.287 PC1       pca_f9Ms4
- 8 quietness                     0.303 PC1       pca_f9Ms4
- 9 nurse_communication           0.117 PC2       pca_f9Ms4
-10 doctor_communication          0.161 PC2       pca_f9Ms4
-# ℹ 54 more rows</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>pca_tidy <span class="sc">|&gt;</span></span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>(component <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"PC3"</span>))) <span class="sc">|&gt;</span></span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">terms =</span> <span class="fu">recode</span>(terms, </span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">quiteness =</span> <span class="st">"Quietness"</span>, </span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">cleanliness =</span> <span class="st">"Cleanliness"</span>, </span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">nurse_communication =</span> <span class="st">"Nurse Communication"</span>, </span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>                        <span class="at">doctor_communication =</span> <span class="st">"Doctor Communication"</span>, </span>
-<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>                        <span class="at">staff_responsiveness =</span> <span class="st">"Staff Responsivness"</span>, </span>
-<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>                        <span class="at">communication_about_medicines =</span> <span class="st">"Communication About Medicines"</span>,</span>
-<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>                        <span class="at">discharge_information =</span> <span class="st">"Discharge Information"</span>,</span>
-<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>                        <span class="at">care_transition =</span> <span class="st">"Care Transition"</span></span>
-<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>                        )) <span class="sc">|&gt;</span></span>
-<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">y =</span> terms, <span class="at">fill =</span> <span class="fu">abs</span>(value))) <span class="sc">+</span></span>
-<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
-<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Significant Principle Component </span><span class="sc">\n</span><span class="st">Analysis Loadings"</span>,</span>
-<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Terms"</span>,</span>
-<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Values"</span></span>
-<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
-<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(</span>
-<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="co"># center</span></span>
-<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">face =</span> <span class="st">"bold"</span>,</span>
-<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">20</span> <span class="co"># guessing this is okay for title</span></span>
-<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title.x =</span> <span class="fu">element_text</span>( <span class="co"># sets only x-axis</span></span>
-<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">15</span></span>
-<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(</span>
-<span id="cb32-31"><a href="#cb32-31" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">10</span></span>
-<span id="cb32-32"><a href="#cb32-32" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb32-33"><a href="#cb32-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title.y =</span> <span class="fu">element_text</span>( <span class="co"># sets only y-axis</span></span>
-<span id="cb32-34"><a href="#cb32-34" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">15</span></span>
-<span id="cb32-35"><a href="#cb32-35" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb32-36"><a href="#cb32-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(</span>
-<span id="cb32-37"><a href="#cb32-37" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">10</span></span>
-<span id="cb32-38"><a href="#cb32-38" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb32-39"><a href="#cb32-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.title =</span> <span class="fu">element_text</span>( <span class="co"># legend title</span></span>
-<span id="cb32-40"><a href="#cb32-40" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">20</span></span>
-<span id="cb32-41"><a href="#cb32-41" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb32-42"><a href="#cb32-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.text =</span> <span class="fu">element_text</span>( <span class="co"># Approved vs Not Approved</span></span>
-<span id="cb32-43"><a href="#cb32-43" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">16</span></span>
-<span id="cb32-44"><a href="#cb32-44" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb32-45"><a href="#cb32-45" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">+</span></span>
-<span id="cb32-46"><a href="#cb32-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">"black"</span>, <span class="at">high =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb32-47"><a href="#cb32-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(component), <span class="at">nrow =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>pca_tidy <span class="sc">|&gt;</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>(component <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"PC3"</span>))) <span class="sc">|&gt;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">terms =</span> <span class="fu">recode</span>(terms, </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">quiteness =</span> <span class="st">"Quietness"</span>, </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">cleanliness =</span> <span class="st">"Cleanliness"</span>, </span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">nurse_communication =</span> <span class="st">"Nurse Communication"</span>, </span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>                        <span class="at">doctor_communication =</span> <span class="st">"Doctor Communication"</span>, </span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>                        <span class="at">staff_responsiveness =</span> <span class="st">"Staff Responsivness"</span>, </span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>                        <span class="at">communication_about_medicines =</span> <span class="st">"Communication About Medicines"</span>,</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>                        <span class="at">discharge_information =</span> <span class="st">"Discharge Information"</span>,</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>                        <span class="at">care_transition =</span> <span class="st">"Care Transition"</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>                        )) <span class="sc">|&gt;</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">y =</span> terms, <span class="at">fill =</span> <span class="fu">abs</span>(value))) <span class="sc">+</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Significant principal Component </span><span class="sc">\n</span><span class="st">Analysis Loadings"</span>,</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Terms"</span>,</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Values"</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="co"># center</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">face =</span> <span class="st">"bold"</span>,</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">20</span> <span class="co"># guessing this is okay for title</span></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title.x =</span> <span class="fu">element_text</span>( <span class="co"># sets only x-axis</span></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">15</span></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(</span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">10</span></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title.y =</span> <span class="fu">element_text</span>( <span class="co"># sets only y-axis</span></span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">15</span></span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(</span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">10</span></span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.title =</span> <span class="fu">element_text</span>( <span class="co"># legend title</span></span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">20</span></span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.text =</span> <span class="fu">element_text</span>( <span class="co"># Approved vs Not Approved</span></span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">16</span></span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">+</span></span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">"black"</span>, <span class="at">high =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(component), <span class="at">nrow =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Project_1_files/figure-html/Plotting with ggplot-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>Now that we have the graphs of each component, we can interpret their meaning.</p>
+<table class="table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 81%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>principal Component 1</td>
+<td>Highly rated</td>
+</tr>
+<tr class="even">
+<td>principal Component 2</td>
+<td>Quiet and clean vs discharge information</td>
+</tr>
+<tr class="odd">
+<td>principal Component 4</td>
+<td>Doctor communication vs quiteness and discharge information</td>
+</tr>
+<tr class="even">
+<td>principal Component 5</td>
+<td>Doctor communication, discharge information, and care transition vs Staff responsiveness</td>
+</tr>
+<tr class="odd">
+<td>principal Component 6</td>
+<td>Staff responsiveness, nurse communication, and doctor communication vs communication about medicines</td>
+</tr>
+<tr class="even">
+<td>principal Component 7</td>
+<td>Care transition vs doctor communication and discharge information</td>
+</tr>
+<tr class="odd">
+<td>principal Component 8</td>
+<td>Staff responsiveness and care transition vs nurse communication</td>
+</tr>
+</tbody>
+</table>
+<p>It is important to note that each subsequent component accounts for less of the overall variance between hospitals.</p>
+</section>
 </section>
 <section id="conclusion" class="level2">
 <h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>Our analysis has shown us that these are the factors that contribute to a change in a hospitals recommendation score. For example, if all other components are held constant, a change in principal component 2 will significantly affect a hospitals recommendation score. It is important to note that each subsequent component accounts for less of the overall variance between hospitals. This means that in descending order, when accurately interpreted, principal component 1 will affect the recommendation score the most, and principal component 8 will affect it the least. This analysis provides insights on what people value from hospitals, and what hospitals can do to provide better care.</p>
 <section id="limitations" class="level4">
 <h4 class="anchored" data-anchor-id="limitations">Limitations</h4>
-<p>CONTEXT: Hospital admins are twitchy about this stuff and care a lot about how their hospitals are rated and the fluctuations. Question survey stuffs. Deal with fluctuations</p>
-</section>
-<section id="reflection-optional-subsection" class="level4">
-<h4 class="anchored" data-anchor-id="reflection-optional-subsection">Reflection (Optional Subsection)</h4>
+<p>There are a few limitations and ethical concerns that should be mentioned about these findings. These insights should not be used as a means of justification for hospitals to de-prioritze certain aspects in hopes of a better recommendation score. Not only would this be ineffective considering principle component 1, it would have the potential to actively harm individuals. Another thing to consider is the reliability of the data. Hospital admins generally care a lot about how their hospital is rated. So much so, that some hospitals might not report accurate data. While the data from the Centers for Medicare and Medicaid should be reliable, it is important to note the possibility of data tampering.</p>
 
 
 </section>

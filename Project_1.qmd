@@ -8,11 +8,11 @@ editor: visual
 
 #### Data Collection
 
-This project aims to analyze hospital survey data to determine what effects a hospital's overall rating. The hospital data that will be used was retrieved from the Centers for Medicare and Medicaid (CMS) [website](https://data.cms.gov/provider-data/dataset/dgck-syfz#data-table "CMS Website Link"){.uri}. This data was accessed on April 10th, 2025 and contains data from 2023 - 2024 from a multitude of different hospitals. This data contains 3 important metrics: star rating, answer percentage, and linear mean value. Of these metrics, the star rating is a 1-5 star rating given by the CMS as part of their initiative to make their Compare Web sites more intuitive. The answer percentage is the distribution of answers within each question. Most of the questions have "Always", "Usually", and "Sometimes or Never" as possible answers. The linear mean value is the metric that will be used for this analysis. This metric is an adjusted score accounting for patient mix, survey mode, and quarterly weighting. More details can be found [here](https://www.hcahpsonline.org/globalassets/hcahps/star-ratings/tech-notes/april_2025_star-ratings_tech_notes.pdf "CMS Technical Documentation"){.uri}.
+This project aims to analyze hospital survey data to determine what effects a hospital's quality. The hospital data that will be used was retrieved from the Centers for Medicare and Medicaid (CMS) [website](https://data.cms.gov/provider-data/dataset/dgck-syfz#data-table "CMS Website Link"){.uri}. This data was accessed on April 10th, 2025 and contains data from 2023 - 2024 from a multitude of different hospitals. This data contains 3 important metrics: star rating, answer percentage, and linear mean value. Of these metrics, the star rating is a 1-5 star rating given by the CMS as part of their initiative to make their Compare Web sites more intuitive. The answer percentage is the distribution of answers within each question. Most of the questions have "Always", "Usually", and "Sometimes or Never" as possible answers. The linear mean value is the metric that will be used for this analysis. This metric is an adjusted score accounting for patient mix, survey mode, and quarterly weighting. More details can be found [here](https://www.hcahpsonline.org/globalassets/hcahps/star-ratings/tech-notes/april_2025_star-ratings_tech_notes.pdf "CMS Technical Documentation"){.uri}.
 
 #### Design
 
-Before we create the model, we must first clean the data. Since only survey data is being considered, location data will not be included in this analysis. After isolating the linear mean values, we will fit a model using principle component analysis. Since our goal is inference, we already know we want to include all components, and we are not evaluating model predictions, we will not be creating a holdout set. After the model is created, we will look at the p-values of each component to determine how significant each component is.
+Before we create the model, we must first clean the data. Since only survey data is being considered, location data will not be included in this analysis. After isolating the linear mean values, we will fit a model using principal component analysis. Since our goal is inference, we already know we want to include all components, and we are not evaluating model predictions, we will not be creating a holdout set. After the model is created, we will look at the p-values of each component to determine how significant each component is.
 
 ## Data Massaging
 
@@ -173,6 +173,9 @@ hospital_linear_mean_pivot <- hospital_linear_mean |>
 
 ```{r}
 #| label: Linear mean value data pivoted
+#| html-table-processing: none 
+#| fig-cap: Pivoted linear mean value data
+#| fig-alt: "A table showing a glimpse of the pivoted linear mean value data."
 
 hospital_linear_mean_pivot_partial <- head(hospital_linear_mean_pivot) |>
   rename("Quiteness" = quietness, 
@@ -191,7 +194,7 @@ gt(
   head(hospital_linear_mean_pivot_partial),
   rowname_col = "facility_id"
 ) |>
-  tab_header(title = "Glimpse of Linear Mean Data Pivoted") |>
+  tab_header(title = "Glimpse of Pivoted Linear Mean Data") |>
   tab_source_note(source_note = "2024 data from Centers for Medicare & Medicaid Services") |>
   tab_stubhead(label = "Facility ID") |>
   opt_align_table_header(align = "left")
@@ -199,24 +202,56 @@ gt(
 
 ## Exploratory Data Analysis
 
+There are two metrics that can determine a hospitals quality, overall rating and recommendation score. On the survey, individuals were asked to provide an overall rating of the hospital, and a score on how likely they would recommend the hospital. We would like to use the recommendation score as our indicator of quality since it offers a more personalized and nuanced information. We first need to verify that these to metrics are comparable.
+
 ```{r}
 #| label: Rating vs Recomend analysis
+#| fig-cap: Overall Rating vs Recommendation Score
+#| fig-alt: "A plot showing overall hospital rating on the horizontal axis and recommendation score on the vertical axis. Details explained in the text below."
 
 ggplot(
   data = hospital_linear_mean_pivot,
   mapping = aes(x = overall_hospital_rating, y = recommend_hospital)
 ) +
-  geom_point()
+  geom_point() +
+    labs(
+    title = "Hostpital Ratings (2024)",
+    x = "Overall Hospital Rating",
+    y = "Recommendation Score"
+  ) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(
+      hjust = 0.5, # center
+      face = "bold",
+      size = 20
+    ),
+    axis.title.x = element_text( # sets only x-axis
+      size = 15
+    ),
+    axis.text.x = element_text(
+      size = 10
+    ),
+    axis.title.y = element_text( # sets only y-axis
+      size = 15
+    ),
+    axis.text.y = element_text(
+      size = 10
+    )
+        ) +
+  geom_smooth(method = "lm", se = FALSE, color = "red")
 
 ```
 
-There is a positive correlation between the overall hospital rating and the recommendation likelihood. This makes sense since a hospital with a higher rating should be more likely to be recommended. We will be using the overall hospital rating as our response variable. We will judge the other variable to see how much they effect the overall hospital rating.
+There is a positive correlation between the `overall hospital rating` and the `recommendation score`. This makes sense since a hospital with a higher rating should be more likely to be recommended. Since these metrics are comparable, we will be using the `recommendation score` as our indicator of quality.
 
-To analyze the data and answer our question, we will use principle component analysis.
+## Modeling
 
-No training/test set because we are not evaluating how good the predictions are. We know the model/number of components and that everything is correlated before looking at data, so no training/test set because solely for inference.
+To analyze the data and answer our question, we will create an inferential model using principal component analysis. As described in our design, we will include all components and we will not evaluate model predictions. Therefore, we will not be creating a holdout set.
 
-## Modeling (Optional Section)
+#### Linear Regression
+
+We start by defining the type of model we want to run, and setting up our workflow.
 
 ```{r}
 #| label: Set up model and begin workflow
@@ -226,6 +261,8 @@ linear_model <- linear_reg(mode = "regression", engine = "lm")
 linear_wflow <- workflow() |>
   add_model(linear_model)
 ```
+
+When setting up the component analysis, we need to remove the `overall hospital ratings`. This is necessary since we have previously shown that they are directly correlated.
 
 ```{r}
 #| label: Create recipe and commit to workflow
@@ -244,23 +281,23 @@ linear_wflow <- linear_wflow |>
   add_recipe(pca_recipe)
 ```
 
+Next, we fit the model on our component analysis.
+
 ```{r}
 #| label: Fit the model and create a table
 
 linear_fit <- fit(linear_wflow, data = hospital_linear_mean_pivot)
 
-tidy(linear_fit)
 ```
 
--   Note below 0.01 can be considered significant
+Now that we have our fitted model, we can take a look at our p-values. We will consider a p-value less than 0.01 to be significant.
 
 ```{r}
 #| label: Table of coefficients
 #| html-table-processing: none 
+#| fig-cap: Table of Coefficients
+#| fig-alt: "A table showing p-values and coefficients. Details explained in the text below."
 
-# Note the html-table-processing: none option in the chunk options
-# The table doesn't display with the default striping in RStudio
-# But Rendering to HTML adds it back in unless you tell it not to
 linear_fit_tibble <- tidy(linear_fit) |>
   arrange(p.value)
 
@@ -283,7 +320,7 @@ gt(
   ) |>
   cols_move_to_start(p.value) |>
   cols_label(
-    p.value = "P Value",
+    p.value = "P-Value",
     estimate = "Coefficient",
     std.error = "Standard Error",
     statistic = "Statistic"
@@ -293,27 +330,24 @@ gt(
   )
 ```
 
+As shown in the table, every component except for component number 3 is significant with a p-value less than 0.01. Now that we know which components significantly affect recommendation scores, we now need to find what each component represents.
+
+#### principal Component Analysis
+
 ```{r}
-#| label: Prep pca for inference
+#| label: Using pca for inference
 
 pca_prep <- pca_recipe |>
   prep()
-pca_prep
-```
-
-```{r}
-#| label: Baking pca
 
 pca_baked <- pca_prep |>
   bake(new_data = NULL)
-```
-
-```{r}
-#| label: Extract loadings
 
 pca_tidy <- tidy(pca_prep, 4, type = "coef") # tidy step 4 - the PCA step
-pca_tidy
+
 ```
+
+Now that we have the loadings for our component analysis, we can create a graph and interpret each components meaning.
 
 ```{r}
 #| label: Plotting with ggplot
@@ -333,7 +367,7 @@ pca_tidy |>
   ggplot(aes(x = value, y = terms, fill = abs(value))) +
   geom_col() +
   labs(
-    title = "Significant Principle Component \nAnalysis Loadings",
+    title = "Significant principal Component \nAnalysis Loadings",
     y = "Terms",
     x = "Values"
   ) +
@@ -368,10 +402,24 @@ pca_tidy |>
 
 ```
 
+Now that we have the graphs of each component, we can interpret their meaning.
+
+| Component             | Interpretation                                                                                       |
+|-----------------------|------------------------------------------------------------------------------------------------------|
+| principal Component 1 | Highly rated                                                                                         |
+| principal Component 2 | Quiet and clean vs discharge information                                                             |
+| principal Component 4 | Doctor communication vs quiteness and discharge information                                          |
+| principal Component 5 | Doctor communication, discharge information, and care transition vs Staff responsiveness             |
+| principal Component 6 | Staff responsiveness, nurse communication, and doctor communication vs communication about medicines |
+| principal Component 7 | Care transition vs doctor communication and discharge information                                    |
+| principal Component 8 | Staff responsiveness and care transition vs nurse communication                                      |
+
+It is important to note that each subsequent component accounts for less of the overall variance between hospitals.
+
 ## Conclusion
+
+Our analysis has shown us that these are the factors that contribute to a change in a hospitals recommendation score. For example, if all other components are held constant, a change in principal component 2 will significantly affect a hospitals recommendation score. It is important to note that each subsequent component accounts for less of the overall variance between hospitals. This means that in descending order, when accurately interpreted, principal component 1 will affect the recommendation score the most, and principal component 8 will affect it the least. This analysis provides insights on what people value from hospitals, and what hospitals can do to provide better care.
 
 #### Limitations
 
-CONTEXT: Hospital admins are twitchy about this stuff and care a lot about how their hospitals are rated and the fluctuations. Question survey stuffs. Deal with fluctuations
-
-#### Reflection (Optional Subsection)
+There are a few limitations and ethical concerns that should be mentioned about these findings. These insights should not be used as a means of justification for hospitals to de-prioritze certain aspects in hopes of a better recommendation score. Not only would this be ineffective considering principle component 1, it would have the potential to actively harm individuals. Another thing to consider is the reliability of the data. Hospital admins generally care a lot about how their hospital is rated. So much so, that some hospitals might not report accurate data. While the data from the Centers for Medicare and Medicaid should be reliable, it is important to note the possibility of data tampering.
