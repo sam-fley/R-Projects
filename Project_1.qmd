@@ -414,8 +414,6 @@ Now that we have the graphs of each component, we can interpret their meaning.
 | principal Component 7 | Care transition vs doctor communication and discharge information                                    |
 | principal Component 8 | Staff responsiveness and care transition vs nurse communication                                      |
 
-It is important to note that each subsequent component accounts for less of the overall variance between hospitals.
-
 ## Conclusion
 
 Our analysis has shown us that these are the factors that contribute to a change in a hospitals recommendation score. For example, if all other components are held constant, a change in principal component 2 will significantly affect a hospitals recommendation score. It is important to note that each subsequent component accounts for less of the overall variance between hospitals. This means that in descending order, when accurately interpreted, principal component 1 will affect the recommendation score the most, and principal component 8 will affect it the least. This analysis provides insights on what people value from hospitals, and what hospitals can do to provide better care.
