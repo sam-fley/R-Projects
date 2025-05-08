@@ -1,7 +1,25 @@
 ---
-title: "Index"
+title: "Sam Fleyshman"
+subtitle: "Student"
+image: barn_owl.jpg
+about: # https://quarto.org/docs/websites/website-about.html
+  template: trestles
+  image-shape: round
+  links:
+    - icon: github
+      text: Github
+      href: https://github.com/sam-fley
+    #- icon: linkedin
+    #  text: LinkedIn
+    #  href: https://linkedin.com
 ---
 
-I am Sam Fleyshman.
+I am a Mathematics major at California State University, Fullerton, with a strong interest in data science and its applications in solving real-world problems. My academic background provides a solid foundation in statistical analysis, mathematical modeling, and algorithmic thinking. I primarily work with R and have some experience with Python, using both to explore data, build models, and create visualizations. This website features my coding projects and reflects my passion for data-driven discovery and continuous learning in the field of data science.
 
-## Test
+## Education
+
+California State University of Fullerton \| Sept 2021 - May 2025
+
+<!-- ## Experience -->
+
+<!-- Workplace \| Job title \| April 20XX - present -->

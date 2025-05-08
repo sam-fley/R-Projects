@@ -44,15 +44,15 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Index",
+    "title": "Sam Fleyshman",
     "section": "",
-    "text": "I am Sam Fleyshman."
+    "text": "I am a Mathematics major at California State University, Fullerton, with a strong interest in data science and its applications in solving real-world problems. My academic background provides a solid foundation in statistical analysis, mathematical modeling, and algorithmic thinking. I primarily work with R and have some experience with Python, using both to explore data, build models, and create visualizations. This website features my coding projects and reflects my passion for data-driven discovery and continuous learning in the field of data science."
   },
   {
-    "objectID": "index.html#test",
-    "href": "index.html#test",
-    "title": "Index",
-    "section": "Test",
-    "text": "Test"
+    "objectID": "index.html#education",
+    "href": "index.html#education",
+    "title": "Sam Fleyshman",
+    "section": "Education",
+    "text": "Education\nCalifornia State University of Fullerton | Sept 2021 - May 2025"
   }
 ]

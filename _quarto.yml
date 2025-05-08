@@ -9,8 +9,8 @@ website:
   title: "CSUF Math Projects"
   navbar:
     left:
-#     - href: Index.qmd
-#     - text: Home
+      - href: index.qmd
+        text: "Home"
       - href: hospital_analysis.qmd
         text: "Hospital Analysis"
        
