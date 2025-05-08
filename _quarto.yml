@@ -3,7 +3,7 @@ project:
   output-dir: docs
   render:
     -   index.qmd
-    -   Project_1.qmd
+    -   hospital_analysis.qmd
     
 website:
   title: "CSUF Math Projects"
@@ -11,7 +11,7 @@ website:
     left:
 #     - href: Index.qmd
 #     - text: Home
-      - href: Project_1.qmd
+      - href: hospital_analysis.qmd
         text: "Hospital Analysis"
        
 format:

@@ -1,5 +1,5 @@
 ---
-title: "Project 1"
+title: "Hospital Analysis"
 format: html
 editor: visual
 ---
@@ -22,7 +22,7 @@ Before we create the model, we must first clean the data. Since only survey data
 #| message: false
 #| echo: false
 
-here::i_am("Project_1.qmd")
+here::i_am("hospital_analysis.qmd")
 
 library(tidyverse)
 library(tidymodels)
