@@ -1,0 +1,573 @@
+---
+title: "Encelia Flower Model Selection"
+format: html
+editor: visual
+---
+
+## Motivation and Context
+
+```{r}
+#| label: do this first
+#| echo: false
+#| message: false
+
+# change this to whatever you renamed the .qmd file to; then delete this comment
+here::i_am("Project-Model-Selection-Encelia.qmd")
+```
+
+Southern California is home to two native species in the *Encelia* genus, *californica* and *farinosa*. *Encelia californica* is found in more coastal regions and *Encelia farinosa* is found in more inland desert regions.
+
+It has become common in Orange County to plant *farinosa* near roadsides and in other areas where *californica* is native. The two plants hybridize easily, so it is not uncommon to see in the wild a plant that has some characteristics of *californica* and some characteristics of *farinosa*.
+
+The Fullerton Arboretum is home to both species. Our goal is to build a model that can "discriminate" between *californica* and *farinosa*. Such models might later be used by botanists to investigate how a putative hybrid can be discriminated from the two parent species.
+
+## Main Objective
+
+The goal of this project is to create a few different classification models that predict if a flower is *californica* or *farinosa*. After these models have been made, we will perform model selection on them to determine which model is "best".
+
+## Packages Used In This Analysis
+
+```{r}
+#| label: load packages
+#| message: false
+#| warning: false
+
+library(here)
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(rsample)
+library(purrr)
+library(yardstick)
+library(tidyr)
+library(broom)
+library(patchwork)
+library(gt)
+```
+
+| Package                                           | Use                                                                       |
+|-----------------------------|-------------------------------------------|
+| [here](https://github.com/jennybc/here_here)      | to easily load and save data                                              |
+| [readr](https://readr.tidyverse.org/)             | to import the CSV file data                                               |
+| [dplyr](https://dplyr.tidyverse.org/)             | to massage and summarize data                                             |
+| [ggplot2](https://ggplot2.tidyverse.org/)         | to create nice-looking and informative graphs                             |
+| [rsample](https://rsample.tidymodels.org/)        | to split data into training and test sets                                 |
+| [purrr](https://purrr.tidyverse.org)              | to run the cross-validation                                               |
+| [yardstick](https://yardstick.tidymodels.org)     | to evalute the accuracy of the models                                     |
+| [tidyr](https://tidyr.tidyverse.org)              | to "pivot" the predictions data frame so that each row represents 1 model |
+| [broom](https://broom.tidymodels.org/)            | to create tibbles                                                         |
+| [patchwork](https://patchwork.data-imaginist.com) | to graph multiple graphs at once                                          |
+| [gt](https://gt.rstudio.com/)                     | to create tables                                                          |
+
+## Design and Data Collection
+
+This data was collected during an in class trip to the Fullerton Arboretum. Students decided collectively on what data to collect, then broke into groups to collect this data. The class decide to measure the number of rays, ray length (overall diameter), disk length (disk diameter), and stem length.
+
+![](Flower_Description.png)
+
+There were some limitations to our data collection method. One major difficulty was that since we did not designate sections of the Arboretum for each group to measure, flowers most likely got measured multiple times. Another limitation would be that each student could read their ruler slightly differently, leading to a variation in the data.
+
+## Training-Test Split
+
+There isn't much data massaging we need to do here, because we were very deliberate about how we set up our data sheet and how we recorded the data on it.
+
+At the end of this section, you should write code to randomly split the Encelia data into a training and test set and explain why a training and test set are useful/necessary for this objective.
+
+```{r}
+#| label: Import data
+#| warning: false
+#| message: false
+#| echo: false
+
+encelia <- read_csv(here::here("Data/Encelia Classification Data Collection - Sheet1.csv"))
+
+```
+
+We will create a training and test set of our data. This will be useful in our modeling step by allowing us to test the effectiveness of our models by predicting on our test set. Since we will know the actual species vs the predicted species, we can evaluate how well a model performs.
+
+```{r}
+#| label: Training and test split
+
+encelia <- encelia |>
+  mutate(
+    Species = as.factor(Species),
+    Species = recode(Species, `C` = 'Californica', `F` = 'Farinosa')
+  ) 
+  
+
+set.seed(69)
+
+encelia_split <- initial_split(
+  encelia,
+  strata = Species,
+  prop = 0.80
+)
+
+encelia_train <- training(encelia_split) 
+encelia_test <- testing(encelia_split)
+
+```
+
+## Exploratory Data Analysis
+
+For our exploratory data analysis, we will be creating four different graphs. Each graph will group by the species and display one of our measurements.
+
+First, we will look at the number of rays.
+
+```{r}
+#| label: Graph of number of rays grouped by species
+
+ggplot(
+  data = encelia_train,
+  mapping = aes(x = number_rays, y = Species)
+) +
+  geom_jitter(height = 0.1) +
+  labs(
+    title = "Number of Rays by Species",
+    x = "Number of Rays",
+    y = ""
+  ) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(
+      hjust = 0.5, # center
+      face = "bold",
+      size = 20
+    ),
+    axis.title.x = element_text( # sets only x-axis
+      size = 15
+    ),
+    axis.text.x = element_text(
+      size = 12
+    ),
+    axis.title.y = element_text( # sets only y-axis
+      size = 15
+    ),
+    axis.text.y = element_text(
+      size = 15
+    )
+        )
+```
+
+As shown above, *farinosa* seems to have less variance in amount of rays compared to *californica*. This difference could lead to ray numbers being a good predictor variable for *californica*.
+
+Next, we will graph disk length.
+
+```{r}
+#| label: Graph of disk diameter grouped by species
+
+ggplot(
+  data = encelia_train,
+  mapping = aes(x = disk_diameter, y = Species)
+) +
+  geom_jitter(height = 0.1) +
+    labs(
+    title = "Disk Diameter by Species",
+    x = "Disk Diameter (cm)",
+    y = ""
+  ) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(
+      hjust = 0.5, # center
+      face = "bold",
+      size = 20
+    ),
+    axis.title.x = element_text( # sets only x-axis
+      size = 15
+    ),
+    axis.text.x = element_text(
+      size = 12
+    ),
+    axis.title.y = element_text( # sets only y-axis
+      size = 15
+    ),
+    axis.text.y = element_text(
+      size = 15
+    )
+        )
+```
+
+As we can see, disk diameter between *californica* and *farinosa* seems to have similar variance. However, both species are centered in different places, which means that this variable could be a good predictor between species.
+
+Now, we will look at ray length.
+
+```{r}
+#| label: Graph of ray diameter grouped by species
+
+ggplot(
+  data = encelia_train,
+  mapping = aes(x = ray_diameter, y = Species)
+) +
+  geom_jitter(height = 0.1) +
+    labs(
+    title = "Ray Diameter by Species",
+    x = "Ray Diameter (cm)",
+    y = ""
+  ) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(
+      hjust = 0.5, # center
+      face = "bold",
+      size = 20
+    ),
+    axis.title.x = element_text( # sets only x-axis
+      size = 15
+    ),
+    axis.text.x = element_text(
+      size = 12
+    ),
+    axis.title.y = element_text( # sets only y-axis
+      size = 15
+    ),
+    axis.text.y = element_text(
+      size = 15
+    )
+        )
+```
+
+Ray diameter seems to be similar to ray number. Both have *farinosa* with a smaller variance with an overlap between the two species.
+
+Finally, we will graph stem length.
+
+```{r}
+#| label: Graph of stem length grouped by species
+#| warning: false
+
+ggplot(
+  data = encelia_train,
+  mapping = aes(x = stem_length, y = Species)
+) +
+  geom_jitter(height = 0.1) +
+    labs(
+    title = "Stem Length by Species",
+    x = "Stem Length (cm)",
+    y = ""
+  ) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(
+      hjust = 0.5, # center
+      face = "bold",
+      size = 20
+    ),
+    axis.title.x = element_text( # sets only x-axis
+      size = 15
+    ),
+    axis.text.x = element_text(
+      size = 12
+    ),
+    axis.title.y = element_text( # sets only y-axis
+      size = 15
+    ),
+    axis.text.y = element_text(
+      size = 15
+    )
+        )
+```
+
+As shown, *farinosa* has a small variance and is offset from *californica*. This variable would most likely be a good predictor between species.
+
+## Modeling
+
+Propose several logistic regression models and use cross-validation to select a best model, following the steps in the "Cross-Validation (Part 3)" video and the "Model Selection for Logistic Regression" activity.
+
+We will make 4 different models, 1 of which will be the null model. We will then perform cross-validation to select a "best" model. We will be making these models with logistic regression. Logistic regression is a statistical model that models the log-odds of an event as a linear combination of one or more independent variables.
+
+I decided to make a model with all the variables, just ray data, just lengths, and a null model. I decided to make these models since these models pair data that seem like they could work in conjunction with each other.
+
+```{r}
+#| label: Model with all variables
+
+model_1 <- glm(
+  Species ~ number_rays + disk_diameter + ray_diameter + stem_length,
+  data = encelia_train,
+  family = "binomial"
+)
+
+
+model_1_pred <- model_1 |>
+  augment(newdata = encelia_test,
+          type.predict = "response")
+
+model_1_pred <- model_1_pred |>
+  mutate(
+    .pred_californica = 1 - .fitted,
+    .pred_farinosa = .fitted,
+    .pred_class = if_else(
+      .fitted < 0.5,
+      "Californica",
+      "Farinosa"
+    ) |>
+      as.factor()
+  )
+
+```
+
+```{r}
+#| label: Model with just petal info
+
+model_2 <- glm(
+  Species ~ number_rays + ray_diameter,
+  data = encelia_train,
+  family = "binomial"
+)
+
+
+model_2_pred <- model_2 |>
+  augment(newdata = encelia_test,
+          type.predict = "response")
+
+model_2_pred <- model_2_pred |>
+  mutate(
+    .pred_californica = 1 - .fitted,
+    .pred_farinosa = .fitted,
+    .pred_class = if_else(
+      .fitted < 0.5,
+      "Californica",
+      "Farinosa"
+    ) |>
+      as.factor()
+  )
+```
+
+```{r}
+#| label: Model with just lengths
+
+model_3 <- glm(
+  Species ~ disk_diameter + ray_diameter + stem_length,
+  data = encelia_train,
+  family = "binomial"
+)
+
+
+model_3_pred <- model_3 |>
+  augment(newdata = encelia_test,
+          type.predict = "response")
+
+model_3_pred <- model_3_pred |>
+  mutate(
+    .pred_californica = 1 - .fitted,
+    .pred_farinosa = .fitted,
+    .pred_class = if_else(
+      .fitted < 0.5,
+      "Californica",
+      "Farinosa"
+    ) |>
+      as.factor()
+  )
+```
+
+```{r}
+#| label: Null model
+
+null_model <- glm(
+  Species ~ 1,
+  data = encelia_train,
+  family = "binomial"
+)
+
+
+null_model_pred <- null_model |>
+  augment(newdata = encelia_test,
+          type.predict = "response")
+
+null_model_pred <- null_model_pred |>
+  mutate(
+    .pred_californica = 1 - .fitted,
+    .pred_farinosa = .fitted,
+    .pred_class = if_else(
+      .fitted < 0.5,
+      "Californica",
+      "Farinosa"
+    ) |>
+      as.factor()
+  )
+```
+
+Now that we have all of our models, we can now plot our predictions.
+
+```{r}
+#| label: Prediction plot
+#| warning: false
+#| message: false
+
+
+
+ggplot_1 <- ggplot(
+  data = model_1_pred,
+  mapping = aes(x = .pred_farinosa, y = Species)
+) +
+  geom_dotplot() +
+  scale_x_continuous(labels = scales::percent) +
+      labs(
+    title = "Farinosa Prediction \n Confidence (Model 1)",
+    x = "Predictions (Percent)",
+    y = ""
+  ) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(
+      hjust = 0.5, # center
+      face = "bold",
+      size = 15
+    ),
+    axis.title.x = element_text( # sets only x-axis
+      size = 15
+    ),
+    axis.text.x = element_text(
+      size = 12
+    ),
+    axis.title.y = element_text( # sets only y-axis
+      size = 15
+    ),
+    axis.text.y = element_text(
+      size = 15
+    ) 
+        )
+
+
+ggplot_2 <- ggplot(
+  data = model_2_pred,
+  mapping = aes(x = .pred_farinosa, y = Species)
+) +
+  geom_dotplot() +
+  scale_x_continuous(labels = scales::percent) +
+      labs(
+    title = "Farinosa Prediction \n Confidence (Model 2)",
+    x = "Predictions (Percent)",
+    y = ""
+  ) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(
+      hjust = 0.5, # center
+      face = "bold",
+      size = 15
+    ),
+    axis.title.x = element_text( # sets only x-axis
+      size = 15
+    ),
+    axis.text.x = element_text(
+      size = 12
+    ),
+    axis.title.y = element_text( # sets only y-axis
+      size = 15
+    ),
+    axis.text.y = element_text(
+      size = 15
+    ) 
+        )
+
+
+ggplot_3 <- ggplot(
+  data = model_3_pred,
+  mapping = aes(x = .pred_farinosa, y = Species)
+) +
+  geom_dotplot() +
+  scale_x_continuous(labels = scales::percent) +
+      labs(
+    title = "Farinosa Prediction \n Confidence (Model 3)",
+    x = "Predictions (Percent)",
+    y = ""
+  ) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(
+      hjust = 0.5, # center
+      face = "bold",
+      size = 15
+    ),
+    axis.title.x = element_text( # sets only x-axis
+      size = 15
+    ),
+    axis.text.x = element_text(
+      size = 12
+    ),
+    axis.title.y = element_text( # sets only y-axis
+      size = 15
+    ),
+    axis.text.y = element_text(
+      size = 15
+    ) 
+        )
+
+
+
+ggplot_1 + ggplot_2 + ggplot_3 +
+  plot_layout(ncol = 2)
+```
+
+These graphs show the confidence of *farinosa* predictions compared to the actual species. Of these graphs, model 1 seems to be doing the best at differentiating between the two species.
+
+We will now evaluate the brier scores for each model. The brier score measures the accuracy of our predictions by calculating the mean squared difference between our predicted probability and our actual outcome. Since we are calculating mean squared difference, lower brier scores are perfered, and we expect a score of 0.25 for our null model.
+
+```{r}
+#| label: Brier score
+
+model_1_brier <- brier_class(model_1_pred, Species, .pred_californica, na_rm = TRUE)
+model_2_brier <- brier_class(model_2_pred, Species, .pred_californica, na_rm = TRUE)
+model_3_brier <- brier_class(model_3_pred, Species, .pred_californica, na_rm = TRUE)
+null_model_brier <- brier_class(null_model_pred, Species, .pred_californica, na_rm = TRUE)
+
+brier_scores <- rbind(model_1_brier, model_2_brier, model_3_brier, null_model_brier)
+brier_scores <- brier_scores |>
+  transmute(Model = c("Model 1", "Model 2", "Model 3", "Null Model"),
+            Score = .estimate)
+
+gt(
+  brier_scores,
+  rowname_col = "Model"
+) |>
+  tab_header(title = "Brier Scores") |>
+  tab_source_note(source_note = "2025 data from Class Fieldtrip") |>
+  opt_align_table_header(align = "right") |>
+  tab_style(
+    style = list(
+      cell_fill(color = "red", alpha = 0.2),
+      cell_text(weight = "bold")
+    ),
+    locations = cells_body(
+      columns = c(Score),
+      rows = Score == min(Score)
+    )
+  )
+```
+
+Again model 1 seems to be our "best" model with our lowest brier score. Since model one was our "best" model in both of our model selection tests, we will select it as our "best" model.
+
+## Insights
+
+Lets take a look at some incorrect predictions that models made.
+
+```{r}
+#| label: Incorrect predictions
+
+model_1_pred_false <- model_1_pred |> 
+  select(!c(".fitted",
+            ".pred_californica",
+            ".pred_farinosa")
+         ) |>
+  filter(
+    Species != .pred_class
+  )
+
+gt(
+  model_1_pred_false,
+  rowname_col = "Species"
+) |>
+  tab_header(title = "Incorrect Predictions") |>
+  tab_source_note(source_note = "2025 data from Class Fieldtrip") |>
+  opt_align_table_header(align = "right") |>
+  cols_move_to_start(.pred_class) |>
+  cols_label(
+    number_rays = "Number of Rays",
+    disk_diameter = "Disk Diameter",
+    ray_diameter = "Ray Diameter",
+    stem_length = "Stem Length",
+    .pred_class = "Prediction"
+  )
+```
+
+Why were these flowers predicted incorrectly? For both of these flowers, the cause is not so obvious. For the first flower, when looking back at our exploratory data graphs where we grouped by species, we see that this flowers data lines up with the mean values for *farinosa* flowers. For the second flower, the most likely cause would be the ray diameter. A value of 4 cm is uncharacteristically low for *californica* flowers. These are the reasons that I think lead to these two flowers being predicted incorrectly.
