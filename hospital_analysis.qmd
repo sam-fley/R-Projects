@@ -8,11 +8,34 @@ editor: visual
 
 #### Data Collection
 
-This project aims to analyze hospital survey data to determine what effects a hospital's quality. The hospital data that will be used was retrieved from the Centers for Medicare and Medicaid (CMS) [website](https://data.cms.gov/provider-data/dataset/dgck-syfz#data-table "CMS Website Link"){.uri}. This data was accessed on April 10th, 2025 and contains data from 2023 - 2024 from a multitude of different hospitals. This data contains 3 important metrics: star rating, answer percentage, and linear mean value. Of these metrics, the star rating is a 1-5 star rating given by the CMS as part of their initiative to make their Compare Web sites more intuitive. The answer percentage is the distribution of answers within each question. Most of the questions have "Always", "Usually", and "Sometimes or Never" as possible answers. The linear mean value is the metric that will be used for this analysis. This metric is an adjusted score accounting for patient mix, survey mode, and quarterly weighting. More details can be found [here](https://www.hcahpsonline.org/globalassets/hcahps/star-ratings/tech-notes/april_2025_star-ratings_tech_notes.pdf "CMS Technical Documentation"){.uri}.
+This project aims to analyze hospital survey data to determine what effects a hospital's quality. The hospital data that will be used was retrieved from the Centers for Medicare and Medicaid (CMS) [website](https://data.cms.gov/provider-data/dataset/dgck-syfz#data-table "CMS Website Link"){.uri}. This data was accessed on April 10th, 2025 and contains data from 2023 - 2024 from a multitude of different hospitals. This data contains three important metrics: star rating, answer percentage, and linear mean value. Of these metrics, the star rating is a 1-5 star rating given by the CMS as part of their initiative to make their Compare Web sites more intuitive. The answer percentage is the distribution of answers within each question. Most of the questions have "Always", "Usually", and "Sometimes or Never" as possible answers. The linear mean value is the metric that will be used for this analysis. This metric is an adjusted score accounting for patient mix, survey mode, and quarterly weighting. More details can be found [here](https://www.hcahpsonline.org/globalassets/hcahps/star-ratings/tech-notes/april_2025_star-ratings_tech_notes.pdf "CMS Technical Documentation"){.uri}.
 
 #### Design
 
 Before we create the model, we must first clean the data. Since only survey data is being considered, location data will not be included in this analysis. After isolating the linear mean values, we will fit a model using principal component analysis. Since our goal is inference, we already know we want to include all components, and we are not evaluating model predictions, we will not be creating a holdout set. After the model is created, we will look at the p-values of each component to determine how significant each component is.
+
+## Packages Used In This Analysis
+
+```{r}
+#| label: load packages
+#| message: false
+#| warning: false
+#| echo: false
+
+library(here)
+library(tidyverse)
+library(tidymodels)
+library(janitor)
+library(gt)
+```
+
+| Package                                                                   | Use                                       |
+|-----------------------------|-------------------------------------------|
+| [here](https://github.com/jennybc/here_here)                              | to easily load and save data              |
+| [tidyverse](https://www.tidyverse.org/)                                   | to perform common data science techniques |
+| [tidymodels](https://tidymodels.tidymodels.org/)                          | to create models                          |
+| [janitor](https://www.rdocumentation.org/packages/janitor/versions/2.2.1) | to clean "dirty" data                     |
+| [gt](https://gt.rstudio.com/)                                             | to create tables                          |
 
 ## Data Massaging
 
@@ -23,16 +46,6 @@ Before we create the model, we must first clean the data. Since only survey data
 #| echo: false
 
 here::i_am("hospital_analysis.qmd")
-
-library(tidyverse)
-library(tidymodels)
-library(rsample)
-library(janitor)
-library(broom)
-library(yardstick)
-library(probably)
-library(gt)
-library(patchwork)
 
 hospital <- read_csv(here::here("Data/HCAHPS-Hospital.csv"), na = c("Not Applicable", "Not Available"))
 
@@ -406,10 +419,10 @@ pca_tidy |>
 Now that we have the graphs of each component, we can interpret their meaning.
 
 | Component             | Interpretation                                                                                       |
-|-----------------------|------------------------------------------------------------------------------------------------------|
+|------------------------|------------------------------------------------|
 | Principal Component 1 | Highly rated                                                                                         |
 | Principal Component 2 | Quiet and clean vs discharge information                                                             |
-| Principal Component 4 | Doctor communication vs quiteness and discharge information                                          |
+| Principal Component 4 | Doctor communication vs quietness and discharge information                                          |
 | Principal Component 5 | Doctor communication, discharge information, and care transition vs Staff responsiveness             |
 | Principal Component 6 | Staff responsiveness, nurse communication, and doctor communication vs communication about medicines |
 | Principal Component 7 | Care transition vs doctor communication and discharge information                                    |
@@ -421,4 +434,4 @@ Our analysis has shown us that these are the factors that contribute to a change
 
 #### Limitations
 
-There are a few limitations and ethical concerns that should be mentioned. These insights should not be used as a means of justification for hospitals to de-prioritze certain aspects of care in hopes of a better recommendation score. Not only would this be ineffective considering principle component 1, it would also have the potential to actively harm individuals. Another thing to consider is the reliability of the data. Hospital admins generally care a lot about how their hospital is rated. So much so, that some hospitals might not report accurate data. While the data from the Centers for Medicare and Medicaid should be reliable, it is important to note the possibility of data tampering.
+There are a few limitations and ethical concerns that should be mentioned. These insights should not be used as a means of justification for hospitals to de-prioritize certain aspects of care in hopes of a better recommendation score. Not only would this be ineffective considering principle component 1, it would also have the potential to actively harm individuals. Another thing to consider is the reliability of the data. Hospital admins generally care a lot about how their hospital is rated. So much so, that some hospitals might not report accurate data. While the data from the Centers for Medicare and Medicaid should be reliable, it is important to note the possibility of data tampering.

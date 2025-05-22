@@ -31,33 +31,22 @@ The goal of this project is to create a few different classification models that
 #| label: load packages
 #| message: false
 #| warning: false
+#| echo: false
 
 library(here)
-library(readr)
-library(ggplot2)
-library(dplyr)
-library(rsample)
-library(purrr)
-library(yardstick)
-library(tidyr)
-library(broom)
+library(tidyverse)
+library(tidymodels)
 library(patchwork)
 library(gt)
 ```
 
-| Package                                           | Use                                                                       |
+| Package                                           | Use                                       |
 |-----------------------------|-------------------------------------------|
-| [here](https://github.com/jennybc/here_here)      | to easily load and save data                                              |
-| [readr](https://readr.tidyverse.org/)             | to import the CSV file data                                               |
-| [dplyr](https://dplyr.tidyverse.org/)             | to massage and summarize data                                             |
-| [ggplot2](https://ggplot2.tidyverse.org/)         | to create nice-looking and informative graphs                             |
-| [rsample](https://rsample.tidymodels.org/)        | to split data into training and test sets                                 |
-| [purrr](https://purrr.tidyverse.org)              | to run the cross-validation                                               |
-| [yardstick](https://yardstick.tidymodels.org)     | to evalute the accuracy of the models                                     |
-| [tidyr](https://tidyr.tidyverse.org)              | to "pivot" the predictions data frame so that each row represents 1 model |
-| [broom](https://broom.tidymodels.org/)            | to create tibbles                                                         |
-| [patchwork](https://patchwork.data-imaginist.com) | to graph multiple graphs at once                                          |
-| [gt](https://gt.rstudio.com/)                     | to create tables                                                          |
+| [here](https://github.com/jennybc/here_here)      | to easily load and save data              |
+| [tidyverse](https://www.tidyverse.org/)           | to perform common data science techniques |
+| [tidymodels](https://tidymodels.tidymodels.org/)  | to create models                          |
+| [patchwork](https://patchwork.data-imaginist.com) | to graph multiple graphs at once          |
+| [gt](https://gt.rstudio.com/)                     | to create tables                          |
 
 ## Design and Data Collection
 
