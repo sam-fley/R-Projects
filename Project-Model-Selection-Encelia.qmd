@@ -63,7 +63,7 @@ library(gt)
 
 This data was collected during an in class trip to the Fullerton Arboretum. Students decided collectively on what data to collect, then broke into groups to collect this data. The class decide to measure the number of rays, ray length (overall diameter), disk length (disk diameter), and stem length.
 
-![](Flower_Description.png)
+![](Flower_Description.jpg)
 
 There were some limitations to our data collection method. One major difficulty was that since we did not designate sections of the Arboretum for each group to measure, flowers most likely got measured multiple times. Another limitation would be that each student could read their ruler slightly differently, leading to a variation in the data.
 
