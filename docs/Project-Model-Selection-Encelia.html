@@ -219,14 +219,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="design-and-data-collection" class="level2">
 <h2 class="anchored" data-anchor-id="design-and-data-collection">Design and Data Collection</h2>
-<p>This data was collected during an in class trip to the Fullerton Arboretum. Students decided collectively on what data to collect, then broke into groups to collect this data. The class decide to measure the number of rays, ray length (overall diameter), disk length (disk diameter), and stem length.</p>
+<p>This data was collected during an in class trip to the Fullerton Arboretum. Students decided collectively on what data to collect, then broke into groups to collect this data. The class decided to measure the number of rays, ray length (overall diameter), disk length (disk diameter), and stem length.</p>
 <p><img src="Flower_Description.jpg" class="img-fluid"></p>
-<p>There were some limitations to our data collection method. One major difficulty was that since we did not designate sections of the Arboretum for each group to measure, flowers most likely got measured multiple times. Another limitation would be that each student could read their ruler slightly differently, leading to a variation in the data.</p>
+<p>There were some limitations to our data collection method. One major difficulty was that since we did not designate sections of the Arboretum for each group to measure, flowers most likely got measured multiple times. Another limitation would be that each student could read their ruler slightly differently, leading to a variation in the data. One group of students did not include the stem lengths in their data collection, however this missing data will not pose an issue to our modeling.</p>
 </section>
 <section id="training-test-split" class="level2">
 <h2 class="anchored" data-anchor-id="training-test-split">Training-Test Split</h2>
 <p>There isn’t much data massaging we need to do here, because we were very deliberate about how we set up our data sheet and how we recorded the data on it.</p>
-<p>At the end of this section, you should write code to randomly split the Encelia data into a training and test set and explain why a training and test set are useful/necessary for this objective.</p>
 <p>We will create a training and test set of our data. This will be useful in our modeling step by allowing us to test the effectiveness of our models by predicting on our test set. Since we will know the actual species vs the predicted species, we can evaluate how well a model performs.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>encelia <span class="ot">&lt;-</span> encelia <span class="sc">|&gt;</span></span>
@@ -402,7 +401,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="modeling" class="level2">
 <h2 class="anchored" data-anchor-id="modeling">Modeling</h2>
-<p>We will make 4 different models, 1 of which will be the null model. We will then perform cross-validation to select a “best” model. We will be making these models with logistic regression. Logistic regression is a&nbsp;statistical model&nbsp;that models the&nbsp;log-odds&nbsp;of an event as a&nbsp;linear combination&nbsp;of one or more&nbsp;independent variables.</p>
+<p>We will make four different models, one of which will be the null model. We will then perform cross-validation to select a “best” model. These models will be made using logistic regression.</p>
 <p>I decided to make a model with all the variables (model 1), just ray data (model 2), just lengths (model 3), and a null model (model 4). I decided to make these models since these models pair data that seem like they could work in conjunction with each other.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>encelia_split <span class="ot">&lt;-</span> encelia_train <span class="sc">|&gt;</span></span>
@@ -1029,7 +1028,7 @@ Farinosa           1</code></pre>
 <span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>species_predictions <span class="ot">&lt;-</span> species_final_preds <span class="sc">|&gt;</span></span>
 <span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">predicted_class =</span> <span class="fu">if_else</span>(</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>      .fitted <span class="sc">&gt;</span> <span class="fl">0.5</span>, <span class="co"># more likely to have AD than not</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>      .fitted <span class="sc">&gt;</span> <span class="fl">0.5</span>, <span class="co"># more likely to be Farinosa than not</span></span>
 <span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Farinosa"</span>, <span class="co"># value if TRUE</span></span>
 <span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Californica"</span> <span class="co"># value if FALSE</span></span>
 <span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>

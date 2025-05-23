@@ -312,6 +312,7 @@ Now that we have our fitted model, we can take a look at our p-values. We will c
 #| html-table-processing: none 
 #| fig-alt: "A table showing p-values and coefficients. Details explained in the text below."
 
+
 linear_fit_tibble <- tidy(linear_fit) |>
   arrange(p.value)
 
@@ -418,20 +419,22 @@ pca_tidy |>
 
 Now that we have the graphs of each component, we can interpret their meaning.
 
-| Component             | Interpretation                                                                                       |
-|------------------------|------------------------------------------------|
-| Principal Component 1 | Highly rated                                                                                         |
-| Principal Component 2 | Quiet and clean vs discharge information                                                             |
-| Principal Component 4 | Doctor communication vs quietness and discharge information                                          |
-| Principal Component 5 | Doctor communication, discharge information, and care transition vs Staff responsiveness             |
-| Principal Component 6 | Staff responsiveness, nurse communication, and doctor communication vs communication about medicines |
-| Principal Component 7 | Care transition vs doctor communication and discharge information                                    |
-| Principal Component 8 | Staff responsiveness and care transition vs nurse communication                                      |
+Each component represents a specific trend in our data. Component 1 represents the most significant trend, that high ratings affect recommendation scores, while each subsequent component represents a less significant trend. Looking back at our significance of components table, we can determine if the trend, in relation to recomendation scores, is positive or negative by the sign of the coefficients.
+
+| Component             | Trends                                                                                                   |
+|--------------------------|----------------------------------------------|
+| Principal Component 1 | Highly rated (+)                                                                                         |
+| Principal Component 2 | Quiet and clean vs discharge information (+)                                                             |
+| Principal Component 4 | Doctor communication vs quietness and discharge information (-)                                          |
+| Principal Component 5 | Doctor communication, discharge information, and care transition vs Staff responsiveness (-)             |
+| Principal Component 6 | Staff responsiveness, nurse communication, and doctor communication vs communication about medicines (-) |
+| Principal Component 7 | Care transition vs doctor communication and discharge information (-)                                    |
+| Principal Component 8 | Staff responsiveness and care transition vs nurse communication (+)                                      |
 
 ## Conclusion
 
-Our analysis has shown us that these are the factors that contribute to a change in a hospitals recommendation score. For example, if all other components are held constant, a change in principal component 2 will significantly affect a hospitals recommendation score. It is important to note that each subsequent component accounts for less of the overall variance between hospitals. This means that in descending order, when accurately interpreted, principal component 1 will account for fluctuation in the recommendation score the most, and principal component 8 will account for it the least. This analysis provides insights on what people value from hospitals, and what hospitals can do to provide better care.
+Our analysis has shown us that these principle components are the factors that contribute to a change in a hospitals recommendation score. For example, if all other components are held constant, a change in principal component 2 will significantly affect a hospitals recommendation score. It is important to note that each subsequent component accounts for less of the overall variance of our data. This means that in descending order, when accurately interpreted, principal component 1 will account for the most fluctuation in our data, and principal component 8 will account for the least. This analysis provides insights on what people value from hospitals, and what hospitals can do to provide better care. According to this analysis, the most valued aspects of hospitals are overall competency with some focus on quietness, cleanliness, and discharge information.
 
-#### Limitations
+#### Limitations and Ethical Concerns
 
-There are a few limitations and ethical concerns that should be mentioned. These insights should not be used as a means of justification for hospitals to de-prioritize certain aspects of care in hopes of a better recommendation score. Not only would this be ineffective considering principle component 1, it would also have the potential to actively harm individuals. Another thing to consider is the reliability of the data. Hospital admins generally care a lot about how their hospital is rated. So much so, that some hospitals might not report accurate data. While the data from the Centers for Medicare and Medicaid should be reliable, it is important to note the possibility of data tampering.
+There are a few limitations and ethical concerns that should be mentioned. These insights should not be used as a means of justification for hospitals to de-prioritize certain aspects of care in hopes of a better recommendation score. Not only would this be ineffective considering principle component 1, it would also have the potential to actively harm individuals. Some of our components had a negative correlation with recommendations scores. This negative correlation does not mean that we should reduce efforts in those variables. Take principle component 7 for example. This component represents care transition scores vs doctor communication and discharge information scores. What this negative trend represents is how, when all other factors are held constant, prioritizing care transition over doctor communication and discharge information, and vice versa, negatively impacts a persons experience. Another thing to consider is the reliability of the data. When people go to the hospital, the last thing on their mind is filling out a survey. This could lead to rushing through the survey, and poor recollection about their stay.

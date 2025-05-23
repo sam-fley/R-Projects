@@ -11,7 +11,6 @@ editor: visual
 #| echo: false
 #| message: false
 
-# change this to whatever you renamed the .qmd file to; then delete this comment
 here::i_am("Project-Model-Selection-Encelia.qmd")
 ```
 
@@ -50,17 +49,15 @@ library(gt)
 
 ## Design and Data Collection
 
-This data was collected during an in class trip to the Fullerton Arboretum. Students decided collectively on what data to collect, then broke into groups to collect this data. The class decide to measure the number of rays, ray length (overall diameter), disk length (disk diameter), and stem length.
+This data was collected during an in class trip to the Fullerton Arboretum. Students decided collectively on what data to collect, then broke into groups to collect this data. The class decided to measure the number of rays, ray length (overall diameter), disk length (disk diameter), and stem length.
 
 ![](Flower_Description.jpg)
 
-There were some limitations to our data collection method. One major difficulty was that since we did not designate sections of the Arboretum for each group to measure, flowers most likely got measured multiple times. Another limitation would be that each student could read their ruler slightly differently, leading to a variation in the data.
+There were some limitations to our data collection method. One major difficulty was that since we did not designate sections of the Arboretum for each group to measure, flowers most likely got measured multiple times. Another limitation would be that each student could read their ruler slightly differently, leading to a variation in the data. One group of students did not include the stem lengths in their data collection, however this missing data will not pose an issue to our modeling.
 
 ## Training-Test Split
 
 There isn't much data massaging we need to do here, because we were very deliberate about how we set up our data sheet and how we recorded the data on it.
-
-At the end of this section, you should write code to randomly split the Encelia data into a training and test set and explain why a training and test set are useful/necessary for this objective.
 
 ```{r}
 #| label: Import data
@@ -260,7 +257,7 @@ As shown, *farinosa* has a small variance and is offset from *californica*. This
 
 ## Modeling
 
-We will make 4 different models, 1 of which will be the null model. We will then perform cross-validation to select a "best" model. We will be making these models with logistic regression. Logistic regression is a statistical model that models the log-odds of an event as a linear combination of one or more independent variables.
+We will make four different models, one of which will be the null model. We will then perform cross-validation to select a "best" model. These models will be made using logistic regression.
 
 I decided to make a model with all the variables (model 1), just ray data (model 2), just lengths (model 3), and a null model (model 4). I decided to make these models since these models pair data that seem like they could work in conjunction with each other.
 
@@ -422,7 +419,7 @@ species_final_preds <- glm3 |>
 species_predictions <- species_final_preds |>
   mutate(
     predicted_class = if_else(
-      .fitted > 0.5, # more likely to have AD than not
+      .fitted > 0.5, # more likely to be Farinosa than not
       "Farinosa", # value if TRUE
       "Californica" # value if FALSE
     ) |>
