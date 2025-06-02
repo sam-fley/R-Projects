@@ -9,9 +9,9 @@ about: # https://quarto.org/docs/websites/website-about.html
     - icon: github
       text: Github
       href: https://github.com/sam-fley
-    #- icon: linkedin
-    #  text: LinkedIn
-    #  href: https://linkedin.com
+    - icon: linkedin
+      text: LinkedIn
+      href: www.linkedin.com/in/sam-fleyshman
 ---
 
 I am a Mathematics graduate from California State University, Fullerton, with a strong interest in data science and its applications in solving real-world problems. My academic background provides a solid foundation in statistical analysis, mathematical modeling, and algorithmic thinking. I primarily work with R and have some experience with Python, using both to explore data, build models, and create visualizations. This website features my coding projects and reflects my passion for data-driven discovery and continuous learning in the field of data science.
